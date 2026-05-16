@@ -89,8 +89,18 @@
   <input id="mileage" type="number" placeholder="قراءة العداد مثل 85000">
 
   <button onclick="saveVehicle()">
-    حفظ المركبة
-  </button>
+     حفظ المركبة
+  </button><hr>
+
+<h2>البحث عن مركبة</h2>
+<div id="result"></div>
+<input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
+
+<button onclick="searchVehicle()">
+بحث عن المركبة
+</button>
+
+<div id="result"></div>
 
   <p id="message"></p>
 
@@ -145,7 +155,46 @@ async function saveVehicle(){
     message.innerText =
       "حدث خطأ: " + error.message;
 
+  }else{async function searchVehicle(){
+
+  const searchVin =
+    document.getElementById("searchVin").value;
+
+  const { data, error } = await client
+    .from("vehicles")
+    .select("*")
+    .eq("vin", searchVin);
+
+  const result =
+    document.getElementById("result");
+
+  if(error){
+
+    result.innerHTML =
+      "حدث خطأ أثناء البحث";
+
+  }else if(data.length === 0){
+
+    result.innerHTML =
+      "لا توجد مركبة بهذا الرقم";
+
   }else{
+
+    result.innerHTML = `
+      <h3>نتيجة البحث</h3>
+
+      <p><strong>الشركة:</strong> ${data[0].make}</p>
+
+      <p><strong>الموديل:</strong> ${data[0].model}</p>
+
+      <p><strong>السنة:</strong> ${data[0].year}</p>
+
+      <p><strong>العداد:</strong> ${data[0].mileage}</p>
+    `;
+
+  }
+
+}
 
     message.style.color = "green";
 
