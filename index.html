@@ -119,18 +119,10 @@ const client = supabase.createClient(
 async function saveVehicle(){
 
   const vin = document.getElementById("vin").value;
-
   const make = document.getElementById("make").value;
-
   const model = document.getElementById("model").value;
-
-  const year = Number(
-    document.getElementById("year").value
-  );
-
-  const mileage = Number(
-    document.getElementById("mileage").value
-  );
+  const year = Number(document.getElementById("year").value);
+  const mileage = Number(document.getElementById("mileage").value);
 
   const { error } = await client
     .from("vehicles")
@@ -154,7 +146,18 @@ async function saveVehicle(){
     message.innerText =
       "حدث خطأ: " + error.message;
 
-  }else{async function searchVehicle(){
+  }else{
+
+    message.style.color = "green";
+
+    message.innerText =
+      "تم حفظ المركبة بنجاح ✅";
+
+  }
+
+}
+
+async function searchVehicle(){
 
   const searchVin =
     document.getElementById("searchVin").value;
@@ -170,7 +173,7 @@ async function saveVehicle(){
   if(error){
 
     result.innerHTML =
-      "حدث خطأ أثناء البحث";
+      "حدث خطأ أثناء البحث: " + error.message;
 
   }else if(data.length === 0){
 
@@ -194,17 +197,6 @@ async function saveVehicle(){
   }
 
 }
-
-    message.style.color = "green";
-
-    message.innerText =
-      "تم حفظ المركبة بنجاح ✅";
-
-  }
-
-}
-
-</script>
 
 </body>
 </html>
