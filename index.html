@@ -1,98 +1,110 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <title>OdoTrust | عداد موثوق</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<title>OdoTrust</title>
 
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#f4f8fb;
-      margin:0;
-      color:#0f172a;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-    header{
-      background:#0b1f3a;
-      color:white;
-      padding:25px;
-      text-align:center;
-    }
+<style>
 
-    header span{
-      color:#38bdf8;
-    }
+body{
+  font-family: Arial;
+  background:#f4f8fb;
+  margin:0;
+}
 
-    .container{
-      max-width:600px;
-      margin:50px auto;
-      background:white;
-      padding:30px;
-      border-radius:16px;
-      box-shadow:0 8px 25px rgba(0,0,0,0.08);
-    }
+header{
+  background:#0b1f3a;
+  color:white;
+  padding:25px;
+  text-align:center;
+}
 
-    h1,h2{
-      text-align:center;
-    }
+header span{
+  color:#38bdf8;
+}
 
-    input,button{
-      width:100%;
-      padding:14px;
-      margin:10px 0;
-      border-radius:8px;
-      border:1px solid #ddd;
-      font-size:16px;
-    }
+.container{
+  max-width:600px;
+  margin:40px auto;
+  background:white;
+  padding:30px;
+  border-radius:16px;
+}
 
-    button{
-      background:#0f766e;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
-    }
+h2{
+  text-align:center;
+}
 
-    button:hover{
-      background:#115e59;
-    }
+input,button{
+  width:100%;
+  padding:15px;
+  margin-top:15px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
 
-    #message{
-      text-align:center;
-      margin-top:15px;
-      font-weight:bold;
-    }
-  </style>
+button{
+  background:#0f766e;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#115e59;
+}
+
+#result{
+  margin-top:20px;
+  padding:15px;
+  background:#f1f5f9;
+  border-radius:10px;
+}
+
+</style>
+
 </head>
 
 <body>
 
 <header>
-  <h1>Odo<span>Trust</span> | عداد موثوق</h1>
-  <p>منصة ذكية لحفظ وفحص بيانات المركبات</p>
+
+<h1>عداد موثوق | <span>OdoTrust</span></h1>
+
+<p>منصة ذكية لحفظ وفحص بيانات المركبات</p>
+
 </header>
 
 <div class="container">
 
-  <h2>إضافة مركبة جديدة</h2>
+<h2>إضافة مركبة جديدة</h2>
 
-  <input id="vin" placeholder="رقم الشاصي VIN">
+<input id="vin" placeholder="رقم الشاصي VIN">
 
-  <input id="make" placeholder="الشركة مثل Toyota">
+<input id="make" placeholder="الشركة مثل Toyota">
 
-  <input id="model" placeholder="الموديل مثل Camry">
+<input id="model" placeholder="الموديل مثل Camry">
 
-  <input id="year" type="number" placeholder="سنة الصنع مثل 2022">
+<input id="year" type="number" placeholder="سنة الصنع مثل 2022">
 
-  <input id="mileage" type="number" placeholder="قراءة العداد مثل 85000">
+<input id="mileage" type="number" placeholder="قراءة العداد مثل 85000">
 
-  <button onclick="saveVehicle()">
-     حفظ المركبة
-  </button><hr>
+<button onclick="saveVehicle()">
+حفظ المركبة
+</button>
+
+<p id="message"></p>
+
+<hr>
 
 <h2>البحث عن مركبة</h2>
+
 <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
 
 <button onclick="searchVehicle()">
@@ -101,13 +113,11 @@
 
 <div id="result"></div>
 
-  <p id="message"></p>
-
 </div>
 
 <script>
 
-const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
+const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co/rest/v1/";
 
 const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
 
@@ -173,7 +183,7 @@ async function searchVehicle(){
   if(error){
 
     result.innerHTML =
-      "حدث خطأ أثناء البحث: " + error.message;
+      "حدث خطأ أثناء البحث";
 
   }else if(data.length === 0){
 
@@ -192,8 +202,9 @@ async function searchVehicle(){
       <p><strong>السنة:</strong> ${data[0].year}</p>
 
       <p><strong>العداد:</strong> ${data[0].mileage}</p>
+    `;
 
-      }
+  }
 
 }
 
@@ -201,4 +212,3 @@ async function searchVehicle(){
 
 </body>
 </html>
-
