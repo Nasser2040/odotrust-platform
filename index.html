@@ -1,10 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-  <title>OdoTrust</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OdoTrust | عداد موثوق</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f8fb;
+      color: #0f172a;
+    }
+
+    header {
+      background: #0b1f3a;
+      color: white;
+      padding: 20px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #38bdf8;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 12px;
+      text-decoration: none;
+      font-size: 15px;
+    }
+
+    .hero {
+      padding: 90px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, #0b1f3a, #0f766e);
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 46px;
+      margin-bottom: 20px;
+    }
+
+    .hero p {
+      font-size: 21px;
+      max-width: 750px;
+      margin: auto;
+      line-height: 1.8;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 35px;
+      background: #38bdf8;
+      color: #0b1f3a;
+      padding: 15px 35px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .section {
+      padding: 70px 40px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .section h2 {
+      text-align: center;
+      font-size: 34px;
+      margin-bottom: 40px;
+      color: #0b1f3a;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .card h3 {
+      color: #0f766e;
+      font-size: 22px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+    }
+
+    .step {
+      background: #e0f2fe;
+      padding: 28px;
+      border-radius: 16px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #0b1f3a;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      margin-top: 50px;
+    }
+  </style>
 </head>
-<body style="font-family: Arial; text-align:center; margin-top:100px;">
-  <h1>Welcome to OdoTrust 🚗</h1>
-  <p>Smart Vehicle History Platform</p>
+
+<body>
+
+  <header>
+    <div class="logo">Odo<span>Trust</span> | عداد موثوق</div>
+    <nav>
+      <a href="#">الرئيسية</a>
+      <a href="#">الخدمات</a>
+      <a href="#">كيف يعمل</a>
+      <a href="#">تواصل معنا</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h1>افحص تاريخ المركبة بثقة وذكاء</h1>
+    <p>
+      منصة OdoTrust تساعدك على كشف التلاعب بعداد السيارات وتحليل سجل المركبة
+      باستخدام البيانات والذكاء الاصطناعي قبل الشراء.
+    </p>
+    <a class="btn" href="#">ابدأ فحص المركبة</a>
+  </section>
+
+  <section class="section">
+    <h2>مميزات المنصة</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>كشف التلاعب</h3>
+        <p>تحليل قراءات العداد واكتشاف أي اختلاف غير منطقي.</p>
+      </div>
+      <div class="card">
+        <h3>سجل المركبة</h3>
+        <p>تجميع تاريخ المركبة من الفحص والصيانة والبيانات المتاحة.</p>
+      </div>
+      <div class="card">
+        <h3>تقرير ذكي</h3>
+        <p>إصدار تقرير واضح يساعد المشتري على اتخاذ قرار آمن.</p>
+      </div>
+      <div class="card">
+        <h3>أمان وثقة</h3>
+        <p>حماية البيانات وتقديم تحليل مبني على مؤشرات دقيقة.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>كيف يعمل OdoTrust؟</h2>
+    <div class="steps">
+      <div class="step">1. أدخل رقم الشاصي VIN</div>
+      <div class="step">2. أضف قراءة العداد</div>
+      <div class="step">3. حلل بيانات المركبة</div>
+      <div class="step">4. استلم التقرير</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2026 OdoTrust | عداد موثوق - جميع الحقوق محفوظة</p>
+  </footer>
+
 </body>
 </html>
