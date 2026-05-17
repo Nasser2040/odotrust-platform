@@ -3,29 +3,39 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OdoTrust</title>
+<title>OdoTrust | عداد موثوق</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
 <style>
-body{font-family:Arial;background:#f4f8fb;margin:0}
-header{background:#0b1f3a;color:white;padding:25px;text-align:center}
+body{margin:0;font-family:Arial;background:#eef4f8;color:#0f172a}
+header{background:linear-gradient(135deg,#0b1f3a,#0f766e);color:white;padding:45px 20px;text-align:center}
+header h1{font-size:38px;margin:0}
 header span{color:#38bdf8}
-.container{max-width:600px;margin:40px auto;background:white;padding:30px;border-radius:16px}
-h2{text-align:center}
-input,button{width:100%;padding:15px;margin-top:15px;border-radius:10px;border:1px solid #ccc;font-size:16px}
-button{background:#0f766e;color:white;border:none;cursor:pointer}
-#message{font-weight:bold}
-#result{margin-top:20px;padding:15px;background:#f1f5f9;border-radius:10px}
-.warning{color:red;font-weight:bold;font-size:18px}
+header p{font-size:18px;margin-top:12px}
+.container{max-width:850px;margin:35px auto;padding:20px}
+.card{background:white;padding:28px;border-radius:18px;margin-bottom:25px;box-shadow:0 8px 25px rgba(0,0,0,.08)}
+h2{text-align:center;color:#0b1f3a}
+input,button{width:100%;padding:15px;margin-top:13px;border-radius:10px;border:1px solid #cbd5e1;font-size:16px;box-sizing:border-box}
+button{background:#0f766e;color:white;border:none;font-weight:bold;cursor:pointer}
+button:hover{background:#115e59}
+#message{font-weight:bold;text-align:center}
+#result{margin-top:20px;padding:20px;background:#f8fafc;border-radius:12px}
+.warning{color:#dc2626;font-weight:bold;font-size:18px;background:#fee2e2;padding:12px;border-radius:10px}
+.good{color:#15803d;font-weight:bold;background:#dcfce7;padding:12px;border-radius:10px}
+footer{text-align:center;padding:25px;color:#64748b}
 </style>
 </head>
+
 <body>
 
 <header>
 <h1>عداد موثوق | <span>OdoTrust</span></h1>
-<p>منصة ذكية لحفظ وفحص بيانات المركبات</p>
+<p>منصة ذكية لحفظ وفحص بيانات المركبات وكشف التلاعب بالعداد</p>
 </header>
 
 <div class="container">
+
+<div class="card">
 <h2>إضافة مركبة جديدة</h2>
 <input id="vin" placeholder="رقم الشاصي VIN">
 <input id="make" placeholder="الشركة مثل Toyota">
@@ -34,21 +44,25 @@ button{background:#0f766e;color:white;border:none;cursor:pointer}
 <input id="mileage" type="number" placeholder="قراءة العداد مثل 85000">
 <button onclick="saveVehicle()">حفظ المركبة</button>
 <p id="message"></p>
+</div>
 
-<hr>
-
+<div class="card">
 <h2>البحث عن مركبة</h2>
 <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
 <button onclick="searchVehicle()">بحث عن المركبة</button>
 <div id="result"></div>
 </div>
 
+</div>
+
+<footer>
+© 2026 OdoTrust | عداد موثوق
+</footer>
+
 <script>
 const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV ";
-
+const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
 const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 async function saveVehicle(){
   const vin = document.getElementById("vin").value.trim();
   const make = document.getElementById("make").value.trim();
@@ -122,14 +136,14 @@ async function searchVehicle(){
 
   let warningHtml = tamperingDetected
     ? `<p class="warning">⚠️ يوجد اشتباه تلاعب بالعداد</p>`
-    : "";
+    : `<p class="good">✅ لا يوجد اشتباه واضح حاليًا</p>`;
 
   result.innerHTML = `
     <h3>نتيجة البحث</h3>
     <p><strong>الشركة:</strong> ${car.make}</p>
     <p><strong>الموديل:</strong> ${car.model}</p>
     <p><strong>السنة:</strong> ${car.year}</p>
-    <p><strong>العداد:</strong> ${car.mileage}</p>
+    <p><strong>العداد الحالي:</strong> ${car.mileage}</p>
     ${historyHtml}
     ${warningHtml}
   `;
