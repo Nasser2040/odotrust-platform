@@ -119,7 +119,7 @@ button:hover{
 
 const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
 
-const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
+const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4Fv ";
 
 const client = supabase.createClient(
   SUPABASE_URL,
@@ -132,7 +132,7 @@ async function saveVehicle(){
   const make = document.getElementById("make").value;
   const model = document.getElementById("model").value;
   const year = Number(document.getElementById("year").value);
-  const mileage = Number(document.getElementById("mileage").value);ٍ
+  const mileage = Number(document.getElementById("mileage").value);
 
   const { error } = await client
     .from("vehicles")
@@ -145,26 +145,16 @@ async function saveVehicle(){
         mileage
       }
     ]);
-const { error: historyError } = await client
-  .from("mileage_history")
-  .insert([
-    {
-      vin,
-      mileage
-    }
-  ]);
 
-if(historyError){
-  alert("خطأ في سجل العداد: " + historyError.message);
-}
-  ]);
+  const { error: historyError } = await client
+    .from("mileage_history")
+    .insert([
+      {
+        vin,
+        mileage
+      }
+    ]);
 
-if(historyError){
-  alert("خطأ في سجل العداد: " + historyError.message);
-}
-    }
-  ]);
-  
   const message =
     document.getElementById("message");
 
@@ -174,6 +164,13 @@ if(historyError){
 
     message.innerText =
       "حدث خطأ: " + error.message;
+
+  }else if(historyError){
+
+    message.style.color = "red";
+
+    message.innerText =
+      "خطأ في سجل العداد";
 
   }else{
 
