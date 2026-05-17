@@ -1,324 +1,139 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>OdoTrust</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
 <style>
-
-body{
-  font-family: Arial;
-  background:#f4f8fb;
-  margin:0;
-}
-
-header{
-  background:#0b1f3a;
-  color:white;
-  padding:25px;
-  text-align:center;
-}
-
-header span{
-  color:#38bdf8;
-}
-
-.container{
-  max-width:600px;
-  margin:40px auto;
-  background:white;
-  padding:30px;
-  border-radius:16px;
-}
-
-h2{
-  text-align:center;
-}
-
-input,button{
-  width:100%;
-  padding:15px;
-  margin-top:15px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  font-size:16px;
-}
-
-button{
-  background:#0f766e;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#115e59;
-}
-
-#result{
-  margin-top:20px;
-  padding:15px;
-  background:#f1f5f9;
-  border-radius:10px;
-}
-
+body{font-family:Arial;background:#f4f8fb;margin:0}
+header{background:#0b1f3a;color:white;padding:25px;text-align:center}
+header span{color:#38bdf8}
+.container{max-width:600px;margin:40px auto;background:white;padding:30px;border-radius:16px}
+h2{text-align:center}
+input,button{width:100%;padding:15px;margin-top:15px;border-radius:10px;border:1px solid #ccc;font-size:16px}
+button{background:#0f766e;color:white;border:none;cursor:pointer}
+#message{font-weight:bold}
+#result{margin-top:20px;padding:15px;background:#f1f5f9;border-radius:10px}
+.warning{color:red;font-weight:bold;font-size:18px}
 </style>
-
 </head>
-
 <body>
 
 <header>
-
 <h1>عداد موثوق | <span>OdoTrust</span></h1>
-
 <p>منصة ذكية لحفظ وفحص بيانات المركبات</p>
-
 </header>
 
 <div class="container">
-
 <h2>إضافة مركبة جديدة</h2>
-
 <input id="vin" placeholder="رقم الشاصي VIN">
-
 <input id="make" placeholder="الشركة مثل Toyota">
-
 <input id="model" placeholder="الموديل مثل Camry">
-
 <input id="year" type="number" placeholder="سنة الصنع مثل 2022">
-
 <input id="mileage" type="number" placeholder="قراءة العداد مثل 85000">
-
-<button onclick="saveVehicle()">
-حفظ المركبة
-</button>
-
+<button onclick="saveVehicle()">حفظ المركبة</button>
 <p id="message"></p>
 
 <hr>
-  
+
 <h2>البحث عن مركبة</h2>
-
 <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
-
-<button onclick="searchVehicle()">
-بحث عن المركبة
-</button>
-
+<button onclick="searchVehicle()">بحث عن المركبة</button>
 <div id="result"></div>
-
 </div>
 
 <script>
-
 const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
-
 const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV ";
 
-const client = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function saveVehicle(){
-
-  const vin = document.getElementById("vin").value;
-  const make = document.getElementById("make").value;
-  const model = document.getElementById("model").value;
+  const vin = document.getElementById("vin").value.trim();
+  const make = document.getElementById("make").value.trim();
+  const model = document.getElementById("model").value.trim();
   const year = Number(document.getElementById("year").value);
   const mileage = Number(document.getElementById("mileage").value);
+  const message = document.getElementById("message");
 
   const { error } = await client
     .from("vehicles")
-    .insert([
-      {
-        vin,
-        make,
-        model,
-        year,
-        mileage
-      }
-    ]);
+    .insert([{ vin, make, model, year, mileage }]);
 
   const { error: historyError } = await client
     .from("mileage_history")
-    .insert([
-      {
-        vin,
-        mileage
-      }
-    ]);
+    .insert([{ vin, mileage }]);
 
-  const message =
-    document.getElementById("message");
-
-  if(error){
-
+  if(error || historyError){
     message.style.color = "red";
-
-    message.innerText =
-      "حدث خطأ: " + error.message;
-
-  }else if(historyError){
-
-    message.style.color = "red";
-
-    message.innerText =
-      "خطأ في سجل العداد";
-
+    message.innerText = "حدث خطأ أثناء الحفظ";
   }else{
-
     message.style.color = "green";
-
-    message.innerText =
-      "تم حفظ المركبة بنجاح ✅";
-
+    message.innerText = "تم حفظ المركبة بنجاح ✅";
   }
-
 }
 
 async function searchVehicle(){
-
-  const searchVin =
-    document.getElementById("searchVin").value;
+  const searchVin = document.getElementById("searchVin").value.trim();
+  const result = document.getElementById("result");
 
   const { data, error } = await client
     .from("vehicles")
     .select("*")
-    .eq("vin", searchVin);
-
-  const result =
-    document.getElementById("result");
+    .eq("vin", searchVin)
+    .limit(1);
 
   if(error){
+    result.innerHTML = "حدث خطأ أثناء البحث";
+    return;
+  }
 
-    result.innerHTML =
-      "حدث خطأ أثناء البحث";
+  if(!data || data.length === 0){
+    result.innerHTML = "لا توجد مركبة بهذا الرقم";
+    return;
+  }
 
-  }else if(data.length === 0){
+  const car = data[0];
 
-    result.innerHTML =
-      "لا توجد مركبة بهذا الرقم";
-
-  }else{
-
-    result.innerHTML = `
-      <h3>نتيجة البحث</h3>
-
-      <p><strong>الشركة:</strong> ${data[0].make}</p>
-
-      <p><strong>الموديل:</strong> ${data[0].model}</p>
-
-     <p><strong>السنة:</strong> ${data[0].year}</p>
-     
-<p><strong>العداد:</strong> ${data[0].mileage}</p>
-<div id="history"></div>
-`;
   const { data: historyData } = await client
-  .from("mileage_history")
-  .select("*")
-  .eq("vin", searchVin)
-  .order("created_at", { ascending: false });
+    .from("mileage_history")
+    .select("*")
+    .eq("vin", searchVin)
+    .order("created_at", { ascending: false });
 
-const historyDiv =
-  document.getElementById("history");
+  let readings = (historyData || [])
+    .map(item => Number(item.mileage))
+    .filter(num => num > 0);
 
-historyDiv.innerHTML =
-  "<h3>سجل العدادات</h3>";
+  let tamperingDetected = false;
 
-let readings = historyData
-  .map(item => Number(item.mileage))
-  .filter(num => num > 0);
-
-let tamperingDetected = false;
-
-for(let i = 0; i < readings.length - 1; i++){
-
-  if(readings[i] < readings[i + 1]){
-    tamperingDetected = true;
+  for(let i = 0; i < readings.length - 1; i++){
+    if(readings[i] < readings[i + 1]){
+      tamperingDetected = true;
+    }
   }
 
-}
+  let historyHtml = "<h3>سجل العدادات</h3>";
 
-historyData.forEach(item => {
+  (historyData || []).forEach(item => {
+    historyHtml += `<p>${item.mileage} كم</p>`;
+  });
 
-  historyDiv.innerHTML += `
-    <p>
-      ${item.mileage} كم
-    </p>
-  `;
+  let warningHtml = tamperingDetected
+    ? `<p class="warning">⚠️ يوجد اشتباه تلاعب بالعداد</p>`
+    : "";
 
-});
-
-if(tamperingDetected){
-
-  historyDiv.innerHTML += `
-    <p style="color:red;font-weight:bold;font-size:18px;">
-      ⚠️ يوجد اشتباه تلاعب بالعداد
-    </p>
-  `;
-
-}  document.getElementById("history");
-
-historyDiv.innerHTML =
-  "<h3>سجل العدادات</h3>";
-
-let tamperingDetected = false;
-for(let i = 0; i < historyData.length - 1; i++){
-
-if(Number(historyData[i].mileage) < Number(historyData[i + 1].mileage)){
-    tamperingDetected = true;
-
-  }
-
-historyData.forEach(item => {
-
-  historyDiv.innerHTML += `
-    <p>
-      ${item.mileage} كم
-    </p>
-  `;
-
-});
-
-if(tamperingDetected){
-
-  historyDiv.innerHTML += `
-    <p style="color:red;font-weight:bold;">
-      ⚠️ يوجد اشتباه تلاعب بالعداد
-    </p>
-  `;
-
-}
-  historyDiv.innerHTML += `
-    <p style="color:red;font-weight:bold;">
-      ⚠️ يوجد اشتباه تلاعب بالعداد
-    </p>
+  result.innerHTML = `
+    <h3>نتيجة البحث</h3>
+    <p><strong>الشركة:</strong> ${car.make}</p>
+    <p><strong>الموديل:</strong> ${car.model}</p>
+    <p><strong>السنة:</strong> ${car.year}</p>
+    <p><strong>العداد:</strong> ${car.mileage}</p>
+    ${historyHtml}
+    ${warningHtml}
   `;
 }
-
-historyDiv.innerHTML =
-  "<h3>سجل العدادات</h3>";
-
-historyData.forEach(item => {
-
-  historyDiv.innerHTML += `
-    <p>
-      ${item.mileage} كم
-    </p>
-  `;
-
-});
-  }
-  
-}
-
 </script>
 
 </body>
