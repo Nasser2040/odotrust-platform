@@ -145,12 +145,23 @@ async function saveVehicle(){
         mileage
       }
     ]);
-await client
+const { error: historyError } = await client
   .from("mileage_history")
   .insert([
     {
       vin,
       mileage
+    }
+  ]);
+
+if(historyError){
+  alert("خطأ في سجل العداد: " + historyError.message);
+}
+  ]);
+
+if(historyError){
+  alert("خطأ في سجل العداد: " + historyError.message);
+}
     }
   ]);
   
