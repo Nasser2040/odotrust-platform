@@ -426,49 +426,7 @@ async function searchVehicle(){
 
 }
 
-async function downloadPDF(){ document.getElementById("searchVin").value;
-
-  const { data } = await client
-    .from("vehicles")
-    .select("*")
-    .eq("vin", searchVin)
-    .limit(1);
-
-  if(!data || data.length === 0){
-
-    alert("ابحث عن مركبة أولاً");
-
-    return;
-
-  }
-
-  const car = data[0];
-
-  const { jsPDF } = window.jspdf;
-
-  const doc = new jsPDF();
-
-  doc.setFontSize(20);
-
-  doc.text("OdoTrust Vehicle Report", 20, 20);
-
-  doc.setFontSize(14);
-
-  doc.text(`VIN: ${car.vin}`, 20, 40);
-
-  doc.text(`Make: ${car.make}`, 20, 55);
-
-  doc.text(`Model: ${car.model}`, 20, 70);
-
-  doc.text(`Year: ${car.year}`, 20, 85);
-
-  doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
-
-  doc.text("Arabic:", 20, 125);
-
-  doc.text("عداد موثوق", 20, 140);
-
-  async function downloadPDF(){
+async function downloadPDF(){
 
   const searchVin =
     document.getElementById("searchVin").value;
@@ -480,41 +438,26 @@ async function downloadPDF(){ document.getElementById("searchVin").value;
     .limit(1);
 
   if(!data || data.length === 0){
-
     alert("ابحث عن مركبة أولاً");
-
     return;
-
   }
 
   const car = data[0];
-
   const { jsPDF } = window.jspdf;
-
   const doc = new jsPDF();
 
   doc.setFontSize(20);
-
   doc.text("OdoTrust Vehicle Report", 20, 20);
 
   doc.setFontSize(14);
-
   doc.text(`VIN: ${car.vin}`, 20, 40);
-
   doc.text(`Make: ${car.make}`, 20, 55);
-
   doc.text(`Model: ${car.model}`, 20, 70);
-
   doc.text(`Year: ${car.year}`, 20, 85);
-
   doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
-
-  doc.text("Arabic:", 20, 125);
-
-  doc.text("OdoTrust", 20, 140);
+  doc.text("OdoTrust - Vehicle Odometer Verification", 20, 120);
 
   doc.save("OdoTrust_Report.pdf");
-
 
 }
 </script>
