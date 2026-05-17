@@ -454,8 +454,20 @@ async function downloadPDF(){
   doc.text(`Make: ${car.make}`, 20, 55);
   doc.text(`Model: ${car.model}`, 20, 70);
   doc.text(`Year: ${car.year}`, 20, 85);
-  doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
-  doc.text("OdoTrust - Vehicle Odometer Verification", 20, 120);
+doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
+
+doc.text(
+  "Status: Odometer Tampering Suspected",
+  20,
+  120
+
+);
+
+doc.text(
+  "OdoTrust - Vehicle Odometer Verification",
+  20,
+  140
+);
 
   doc.save("OdoTrust_Report.pdf");
 
