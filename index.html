@@ -229,6 +229,25 @@ async function searchVehicle(){
 const historyDiv =
   document.getElementById("history");
 
+let tamperingDetected = false;
+
+for(let i = 0; i < historyData.length - 1; i++){
+
+  if(historyData[i].mileage < historyData[i + 1].mileage){
+
+    tamperingDetected = true;
+
+  }
+
+}if(tamperingDetected){
+
+  historyDiv.innerHTML += `
+    <p style="color:red;font-weight:bold;">
+      ⚠️ يوجد اشتباه تلاعب بالعداد
+    </p>
+  `;
+}
+
 historyDiv.innerHTML =
   "<h3>سجل العدادات</h3>";
 
