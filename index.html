@@ -132,7 +132,7 @@ async function saveVehicle(){
   const make = document.getElementById("make").value;
   const model = document.getElementById("model").value;
   const year = Number(document.getElementById("year").value);
-  const mileage = Number(document.getElementById("mileage").value);
+  const mileage = Number(document.getElementById("mileage").value);ٍ
 
   const { error } = await client
     .from("vehicles")
@@ -145,7 +145,15 @@ async function saveVehicle(){
         mileage
       }
     ]);
-
+await client
+  .from("mileage_history")
+  .insert([
+    {
+      vin,
+      mileage
+    }
+  ]);
+  
   const message =
     document.getElementById("message");
 
