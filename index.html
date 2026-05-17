@@ -235,8 +235,7 @@ historyDiv.innerHTML =
 let tamperingDetected = false;
 for(let i = 0; i < historyData.length - 1; i++){
 
-  if(historyData[i].mileage < historyData[i + 1].mileage){
-
+if(Number(historyData[i].mileage) < Number(historyData[i + 1].mileage)){
     tamperingDetected = true;
 
   }
