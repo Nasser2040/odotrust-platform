@@ -232,6 +232,43 @@ const historyDiv =
 historyDiv.innerHTML =
   "<h3>سجل العدادات</h3>";
 
+let readings = historyData
+  .map(item => Number(item.mileage))
+  .filter(num => num > 0);
+
+let tamperingDetected = false;
+
+for(let i = 0; i < readings.length - 1; i++){
+
+  if(readings[i] < readings[i + 1]){
+    tamperingDetected = true;
+  }
+
+}
+
+historyData.forEach(item => {
+
+  historyDiv.innerHTML += `
+    <p>
+      ${item.mileage} كم
+    </p>
+  `;
+
+});
+
+if(tamperingDetected){
+
+  historyDiv.innerHTML += `
+    <p style="color:red;font-weight:bold;font-size:18px;">
+      ⚠️ يوجد اشتباه تلاعب بالعداد
+    </p>
+  `;
+
+}  document.getElementById("history");
+
+historyDiv.innerHTML =
+  "<h3>سجل العدادات</h3>";
+
 let tamperingDetected = false;
 for(let i = 0; i < historyData.length - 1; i++){
 
