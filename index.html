@@ -229,8 +229,10 @@ async function searchVehicle(){
 const historyDiv =
   document.getElementById("history");
 
-let tamperingDetected = false;
+historyDiv.innerHTML =
+  "<h3>سجل العدادات</h3>";
 
+let tamperingDetected = false;
 for(let i = 0; i < historyData.length - 1; i++){
 
   if(historyData[i].mileage < historyData[i + 1].mileage){
