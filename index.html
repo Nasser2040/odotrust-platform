@@ -1,317 +1,100 @@
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>OdoTrust | عداد موثوق</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>.logo{
-  width:180px;
-  margin-bottom:20px;
-}
 
-*{
-  box-sizing:border-box;
-}
-
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-}
-
-header{
-  background:linear-gradient(135deg,#020617,#0f766e);
-  padding:60px 20px;
-  text-align:center;
-  border-bottom:4px solid #38bdf8;
-}
-
-header h1{
-  margin:0;
-  font-size:48px;
-}
-
-header span{
-  color:#38bdf8;
-}
-
-header p{
-  margin-top:15px;
-  color:#cbd5e1;
-  font-size:20px;
-}
-
-.container{
-  max-width:950px;
-  margin:auto;
-  padding:30px;
-}
-
-.card{
-  background:#111827;
-  padding:30px;
-  border-radius:22px;
-  margin-bottom:30px;
-  border:1px solid #1e293b;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-
-.card h2{
-  margin-top:0;
-  color:#38bdf8;
-  text-align:center;
-  margin-bottom:25px;
-}
-
-input{
-  width:100%;
-  padding:16px;
-  margin-top:14px;
-  border:none;
-  border-radius:12px;
-  background:#1e293b;
-  color:white;
-  font-size:16px;
-}
-
-input:focus{
-  outline:none;
-  border:2px solid #38bdf8;
-}
-
-button{
-  width:100%;
-  padding:16px;
-  margin-top:18px;
-  border:none;
-  border-radius:12px;
-  background:#0f766e;
-  color:white;
-  font-size:17px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.3s;
-}
-
-button:hover{
-  background:#14b8a6;
-  transform:translateY(-2px);
-}
-
-#message{
-  margin-top:18px;
-  text-align:center;
-  font-weight:bold;
-}
-
-#result{
-  margin-top:25px;
-  background:#0f172a;
-  padding:25px;
-  border-radius:16px;
-  border:1px solid #1e293b;
-}
-
-.result-box{
-  background:#111827;
-  padding:15px;
-  margin-top:12px;
-  border-radius:12px;
-}
-
-.warning{
-  background:#7f1d1d;
-  color:#fecaca;
-  padding:15px;
-  border-radius:12px;
-  margin-top:20px;
-  font-weight:bold;
-  text-align:center;
-  font-size:18px;
-}
-
-.safe{
-  background:#14532d;
-  color:#bbf7d0;
-  padding:15px;
-  border-radius:12px;
-  margin-top:20px;
-  font-weight:bold;
-  text-align:center;
-  font-size:18px;
-}
-
-.history{
-  margin-top:20px;
-  background:#1e293b;
-  padding:18px;
-  border-radius:14px;
-}
-
-.history-item{
-  padding:10px;
-  border-bottom:1px solid #334155;
-}
-
-footer{
-  text-align:center;
-  padding:30px;
-  color:#94a3b8;
-}
-
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white}
+header{background:linear-gradient(135deg,#020617,#0f766e);padding:45px;text-align:center;border-bottom:4px solid #38bdf8}
+.logo{width:150px;margin-bottom:15px}
+header h1{font-size:42px;margin:0}
+header span{color:#38bdf8}
+.container{max-width:900px;margin:auto;padding:30px}
+.card{background:#111827;padding:30px;border-radius:22px;margin-bottom:30px;border:1px solid #1e293b}
+h2{text-align:center;color:#38bdf8}
+input,button{width:100%;padding:15px;margin-top:14px;border-radius:12px;border:none;font-size:16px;box-sizing:border-box}
+input{background:#1e293b;color:white}
+button{background:#0f766e;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#14b8a6}
+#message{text-align:center;font-weight:bold}
+#result{margin-top:20px}
+.result-box{background:#1e293b;padding:25px;border-radius:18px}
+.history{margin-top:20px;background:#0f172a;padding:15px;border-radius:14px}
+.history-item{padding:8px;border-bottom:1px solid #334155}
+.warning{background:#7f1d1d;color:#fecaca;padding:15px;border-radius:12px;text-align:center;font-weight:bold}
+.safe{background:#14532d;color:#bbf7d0;padding:15px;border-radius:12px;text-align:center;font-weight:bold}
+.qr{background:white;padding:10px;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:#94a3b8;padding:25px}
 </style>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
+
 <body>
 
-<header><img
-src="logo.png"
-alt="OdoTrust Logo"
-class="logo"
-/>
-
+<header>
+<img src="logo.png" class="logo" alt="OdoTrust Logo">
 <h1>عداد موثوق | <span>OdoTrust</span></h1>
-
-<p>
-منصة ذكية لكشف التلاعب بعدادات المركبات
-</p>
-
+<p>منصة ذكية لكشف التلاعب بعدادات المركبات</p>
 </header>
 
 <div class="container">
 
 <div class="card">
-
 <h2>إضافة مركبة جديدة</h2>
-
 <input id="vin" placeholder="رقم الشاصي VIN">
-
 <input id="make" placeholder="الشركة">
-
 <input id="model" placeholder="الموديل">
-
 <input id="year" type="number" placeholder="سنة الصنع">
-
 <input id="mileage" type="number" placeholder="قراءة العداد">
-
-<button onclick="saveVehicle()">
-حفظ المركبة
-</button>
-
+<button onclick="saveVehicle()">حفظ المركبة</button>
 <p id="message"></p>
-
 </div>
 
 <div class="card">
-
 <h2>البحث عن مركبة</h2>
-
 <input id="searchVin" placeholder="أدخل رقم الشاصي">
-
-<button onclick="searchVehicle()">
-بحث عن المركبة
-</button>
-
+<button onclick="searchVehicle()">بحث عن المركبة</button>
 <div id="result"></div>
-<button onclick="downloadPDF()">
-تحميل تقرير PDF
-</button>
+<button onclick="downloadPDF()">تحميل تقرير PDF</button>
 </div>
 
 </div>
 
-<footer>
-
-© 2026 OdoTrust - جميع الحقوق محفوظة
-
-</footer>
+<footer>© 2026 OdoTrust</footer>
 
 <script>
+const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
 
-const SUPABASE_URL =
-"https://fufghmrctxaiwnchgatp.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
-
-const client = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function saveVehicle(){
+  const vin = document.getElementById("vin").value.trim();
+  const make = document.getElementById("make").value.trim();
+  const model = document.getElementById("model").value.trim();
+  const year = Number(document.getElementById("year").value);
+  const mileage = Number(document.getElementById("mileage").value);
+  const message = document.getElementById("message");
 
-  const vin =
-    document.getElementById("vin").value;
+  const { error } = await client.from("vehicles").insert([{vin,make,model,year,mileage}]);
+  const { error: historyError } = await client.from("mileage_history").insert([{vin,mileage}]);
 
-  const make =
-    document.getElementById("make").value;
-
-  const model =
-    document.getElementById("model").value;
-
-  const year = Number(
-    document.getElementById("year").value
-  );
-
-  const mileage = Number(
-    document.getElementById("mileage").value
-  );
-
-  const message =
-    document.getElementById("message");
-
-  const { error } = await client
-    .from("vehicles")
-    .insert([
-      {
-        vin,
-        make,
-        model,
-        year,
-        mileage
-      }
-    ]);
-
-  await client
-    .from("mileage_history")
-    .insert([
-      {
-        vin,
-        mileage
-      }
-    ]);
-
-  if(error){
-
+  if(error || historyError){
     message.style.color = "#f87171";
-
-    message.innerText =
-      "حدث خطأ أثناء الحفظ";
-
+    message.innerText = "حدث خطأ أثناء الحفظ";
   }else{
-
     message.style.color = "#4ade80";
-
-    message.innerText =
-      "تم حفظ المركبة بنجاح ✅";
-
+    message.innerText = "تم حفظ المركبة بنجاح ✅";
   }
-
 }
 
 async function searchVehicle(){
-async function searchVehicle(){
-
-  const searchVin = document.getElementById("searchVin").value;
+  const searchVin = document.getElementById("searchVin").value.trim();
   const result = document.getElementById("result");
 
   const { data, error } = await client
@@ -332,28 +115,47 @@ async function searchVehicle(){
 
   const car = data[0];
 
+  const { data: historyData } = await client
+    .from("mileage_history")
+    .select("*")
+    .eq("vin", searchVin)
+    .order("created_at", { ascending:false });
+
+  const readings = (historyData || []).map(item => Number(item.mileage));
+  let tamperingDetected = false;
+
+  for(let i = 0; i < readings.length - 1; i++){
+    if(readings[i] < readings[i + 1]){
+      tamperingDetected = true;
+    }
+  }
+
+  let historyHtml = `<div class="history"><h3>سجل العدادات</h3>`;
+  (historyData || []).forEach(item => {
+    historyHtml += `<div class="history-item">${item.mileage} كم</div>`;
+  });
+  historyHtml += `</div>`;
+
+  const statusHtml = tamperingDetected
+    ? `<div class="warning">⚠️ يوجد اشتباه تلاعب بالعداد</div>`
+    : `<div class="safe">✅ لا يوجد اشتباه واضح</div>`;
+
   result.innerHTML = `
     <div class="result-box">
       <h2>نتيجة الفحص</h2>
-
       <p><strong>الشركة:</strong> ${car.make}</p>
       <p><strong>الموديل:</strong> ${car.model}</p>
       <p><strong>السنة:</strong> ${car.year}</p>
       <p><strong>العداد الحالي:</strong> ${car.mileage} كم</p>
-
-      <img 
-        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
-        style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
-      >
+      ${historyHtml}
+      ${statusHtml}
+      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}">
     </div>
   `;
-
 }
 
 async function downloadPDF(){
-
-  const searchVin =
-    document.getElementById("searchVin").value;
+  const searchVin = document.getElementById("searchVin").value.trim();
 
   const { data } = await client
     .from("vehicles")
@@ -378,24 +180,12 @@ async function downloadPDF(){
   doc.text(`Make: ${car.make}`, 20, 55);
   doc.text(`Model: ${car.model}`, 20, 70);
   doc.text(`Year: ${car.year}`, 20, 85);
-doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
-
-doc.text(
-  "Status: Odometer Tampering Suspected",
-  20,
-  120
-
-);
-
-doc.text(
-  "OdoTrust - Vehicle Odometer Verification",
-  20,
-  140
-);
+  doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
+  doc.text("OdoTrust - Vehicle Odometer Verification", 20, 125);
 
   doc.save("OdoTrust_Report.pdf");
-
 }
 </script>
+
 </body>
 </html>
