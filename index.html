@@ -405,8 +405,10 @@ result.innerHTML = `
 
     ${statusHtml}
 
-    <div id="qrcode"></div>
-
+<img 
+src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
+style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
+>
   </div>
 
 `;
@@ -441,10 +443,7 @@ result.innerHTML = `
     </div>
 
   `;
-new QRCode(document.getElementById("qrcode"), {  text: searchVin,
-  width: 120,
-  height: 120
-});
+new QRCode
 }
 
 async function downloadPDF(){
