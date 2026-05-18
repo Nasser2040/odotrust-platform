@@ -395,10 +395,21 @@ async function searchVehicle(){
     `<div class="safe">
       ✅ لا يوجد اشتباه واضح
     </div>`;
+result.innerHTML = `
 
-  result.innerHTML = `
+  <div class="result-box">
 
-    <div class="result-box">
+    <h2>نتيجة الفحص</h2>
+
+    ...
+
+    ${statusHtml}
+
+    <div id="qrcode"></div>
+
+  </div>
+
+`;
 
       <h2>نتيجة الفحص</h2>
 
@@ -430,8 +441,7 @@ async function searchVehicle(){
     </div>
 
   `;
-new QRCode(result, {
-  text: searchVin,
+new QRCode(document.getElementById("qrcode"), {  text: searchVin,
   width: 120,
   height: 120
 });
