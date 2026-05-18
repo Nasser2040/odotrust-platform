@@ -6,34 +6,164 @@
 <title>OdoTrust | عداد موثوق</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#0f172a;color:white}
-header{background:linear-gradient(135deg,#020617,#0f766e);padding:45px 20px;text-align:center;border-bottom:4px solid #38bdf8}
-.logo{width:150px;margin-bottom:15px}
-header h1{font-size:42px;margin:0}
-header span{color:#38bdf8}
-header p{color:#cbd5e1;font-size:18px}
-.container{max-width:950px;margin:auto;padding:30px}
-.card{background:#111827;padding:30px;border-radius:24px;margin-bottom:30px;border:1px solid #1e293b;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-h2{text-align:center;color:#38bdf8;font-size:30px;margin-bottom:25px}
-input,button{width:100%;padding:15px;margin-top:14px;border-radius:12px;border:none;font-size:16px}
-input{background:#1e293b;color:white}
-button{background:#0f766e;color:white;font-weight:bold;cursor:pointer}
-button:hover{background:#14b8a6}
-#message{text-align:center;font-weight:bold}
-#result{margin-top:25px}
-.result-box{background:#1e293b;padding:35px;border-radius:24px;border:1px solid #334155;box-shadow:0 0 25px rgba(0,0,0,.35)}
-.info-card{background:#0f172a;padding:20px;border-radius:16px;border:1px solid #334155;margin-bottom:20px}
-.info-card p{font-size:17px;margin:12px 0}
-.history{margin-top:20px;background:#0f172a;padding:18px;border-radius:16px}
-.history-item{padding:10px;border-bottom:1px solid #334155}
-.warning{background:#7f1d1d;color:#fecaca;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
-.safe{background:#14532d;color:#bbf7d0;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
-.qr{background:white;padding:10px;border-radius:12px;margin-top:20px}
-footer{text-align:center;color:#94a3b8;padding:25px}
+
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+}
+
+header{
+  background:linear-gradient(135deg,#020617,#0f766e);
+  padding:45px 20px;
+  text-align:center;
+  border-bottom:4px solid #38bdf8;
+}
+
+.logo{
+  width:150px;
+  margin-bottom:15px;
+}
+
+header h1{
+  font-size:42px;
+  margin:0;
+}
+
+header span{
+  color:#38bdf8;
+}
+
+header p{
+  color:#cbd5e1;
+  font-size:18px;
+}
+
+.container{
+  max-width:950px;
+  margin:auto;
+  padding:30px;
+}
+
+.card{
+  background:#111827;
+  padding:30px;
+  border-radius:24px;
+  margin-bottom:30px;
+  border:1px solid #1e293b;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+h2{
+  text-align:center;
+  color:#38bdf8;
+  font-size:30px;
+  margin-bottom:25px;
+}
+
+input,button{
+  width:100%;
+  padding:15px;
+  margin-top:14px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+}
+
+input{
+  background:#1e293b;
+  color:white;
+}
+
+button{
+  background:#0f766e;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#14b8a6;
+}
+
+#message{
+  text-align:center;
+  font-weight:bold;
+}
+
+#result{
+  margin-top:25px;
+}
+
+.result-box{
+  background:#1e293b;
+  padding:35px;
+  border-radius:24px;
+  border:1px solid #334155;
+  box-shadow:0 0 25px rgba(0,0,0,.35);
+}
+
+.info-card{
+  background:#0f172a;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid #334155;
+  margin-bottom:20px;
+}
+
+.info-card p{
+  font-size:17px;
+  margin:12px 0;
+}
+
+.history{
+  margin-top:20px;
+  background:#0f172a;
+  padding:18px;
+  border-radius:16px;
+}
+
+.history-item{
+  padding:10px;
+  border-bottom:1px solid #334155;
+}
+
+.warning{
+  background:#7f1d1d;
+  color:#fecaca;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+.safe{
+  background:#14532d;
+  color:#bbf7d0;
+  padding:15px;
+  border-radius:12px;
+  text-align:center;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+.qr{
+  background:white;
+  padding:10px;
+  border-radius:12px;
+  margin-top:20px;
+}
+
+footer{
+  text-align:center;
+  color:#94a3b8;
+  padding:25px;
+}
 </style>
 </head>
 
@@ -63,7 +193,6 @@ footer{text-align:center;color:#94a3b8;padding:25px}
 <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
 <button onclick="searchVehicle()">بحث عن المركبة</button>
 <div id="result"></div>
-<button onclick="downloadPDF()">تحميل تقرير PDF</button>
 </div>
 
 </div>
@@ -123,13 +252,21 @@ async function searchVehicle(){
 
   const car = data[0];
 
-  const { data: historyData } = await client
+  const { data: historyData, error: historyError } = await client
     .from("mileage_history")
     .select("*")
     .eq("vin", searchVin)
     .order("created_at", { ascending:false });
 
-  const readings = (historyData || []).map(item => Number(item.mileage)).filter(num => num > 0);
+  if(historyError){
+    result.innerHTML = "حدث خطأ أثناء جلب سجل العدادات";
+    return;
+  }
+
+  const readings = (historyData || [])
+    .map(item => Number(item.mileage))
+    .filter(num => num > 0);
+
   let tamperingDetected = false;
 
   for(let i = 0; i < readings.length - 1; i++){
@@ -138,10 +275,23 @@ async function searchVehicle(){
     }
   }
 
-  let historyHtml = `<div class="history"><h3>سجل العدادات</h3>`;
-  (historyData || []).forEach(item => {
-    historyHtml += `<div class="history-item">${item.mileage} كم</div>`;
-  });
+  let historyHtml = `
+    <div class="history">
+      <h3>سجل العدادات</h3>
+  `;
+
+  if(!historyData || historyData.length === 0){
+    historyHtml += `<div class="history-item">لا يوجد سجل عدادات</div>`;
+  }else{
+    historyData.forEach(item => {
+      historyHtml += `
+        <div class="history-item">
+          ${item.mileage} كم
+        </div>
+      `;
+    });
+  }
+
   historyHtml += `</div>`;
 
   const statusHtml = tamperingDetected
@@ -161,84 +311,19 @@ async function searchVehicle(){
       </div>
 
       ${historyHtml}
+
       ${statusHtml}
 
       <div style="text-align:center;margin-top:25px;">
-        <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}">
+        <img 
+          class="qr" 
+          src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}"
+          alt="QR Code"
+        >
         <p style="color:#94a3b8;">QR للتحقق من المركبة</p>
       </div>
     </div>
   `;
-}
-async function downloadPDF(){
-  const searchVin = document.getElementById("searchVin").value.trim();
-
-  const { data } = await client
-    .from("vehicles")
-    .select("*")
-    .eq("vin", searchVin)
-    .limit(1);
-
-  if(!data || data.length === 0){
-    alert("ابحث عن مركبة أولاً");
-    return;
-  }
-
-  const car = data[0];
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  const logo = new Image();
-  logo.src = "logo.png";
-
-  logo.onload = function(){
-    doc.addImage(logo, "PNG", 80, 10, 50, 50);
-
-    doc.setFontSize(20);
-    doc.text("OdoTrust Vehicle Report", 20, 75);
-
-    doc.setFontSize(14);
-    doc.text(`VIN: ${car.vin}`, 20, 95);
-    doc.text(`Make: ${car.make}`, 20, 110);
-    doc.text(`Model: ${car.model}`, 20, 125);
-    doc.text(`Year: ${car.year}`, 20, 140);
-    doc.text(`Mileage: ${car.mileage} KM`, 20, 155);
-    doc.text("Status: Odometer Verification Report", 20, 175);
-    doc.text("OdoTrust - Vehicle Odometer Verification", 20, 195);
-
-    doc.save("OdoTrust_Report.pdf");
-  };
-}
-  const searchVin = document.getElementById("searchVin").value.trim();
-
-  const { data } = await client
-    .from("vehicles")
-    .select("*")
-    .eq("vin", searchVin)
-    .limit(1);
-
-  if(!data || data.length === 0){
-    alert("ابحث عن مركبة أولاً");
-    return;
-  }
-
-  const car = data[0];
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(20);
-  doc.text("OdoTrust Vehicle Report", 20, 20);
-
-  doc.setFontSize(14);
-  doc.text(`VIN: ${car.vin}`, 20, 40);
-  doc.text(`Make: ${car.make}`, 20, 55);
-  doc.text(`Model: ${car.model}`, 20, 70);
-  doc.text(`Year: ${car.year}`, 20, 85);
-  doc.text(`Mileage: ${car.mileage} KM`, 20, 100);
-  doc.text("Status: Odometer Verification Report", 20, 120);
-  doc.text("OdoTrust - Vehicle Odometer Verification", 20, 140);
-
-  doc.save("OdoTrust_Report.pdf");
 }
 </script>
 
