@@ -310,6 +310,8 @@ async function saveVehicle(){
 
 async function searchVehicle(){
 
+ async function searchVehicle(){
+
   const searchVin =
     document.getElementById("searchVin").value;
 
@@ -395,23 +397,10 @@ async function searchVehicle(){
     `<div class="safe">
       ✅ لا يوجد اشتباه واضح
     </div>`;
-result.innerHTML = `
 
-  <div class="result-box">
+  result.innerHTML = `
 
-    <h2>نتيجة الفحص</h2>
-
-    ...
-
-    ${statusHtml}
-
-<img 
-src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
-style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
->
-  </div>
-
-`;
+    <div class="result-box">
 
       <h2>نتيجة الفحص</h2>
 
@@ -440,10 +429,15 @@ style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
 
       ${statusHtml}
 
+      <img 
+      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
+      style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
+      >
+
     </div>
 
   `;
-new QRCode
+
 }
 
 async function downloadPDF(){
