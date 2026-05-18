@@ -171,7 +171,45 @@ async function searchVehicle(){
   `;
 }
 
-async function downloadPDF(){
+async function async function downloadPDF(){
+  const searchVin = document.getElementById("searchVin").value.trim();
+
+  const { data } = await client
+    .from("vehicles")
+    .select("*")
+    .eq("vin", searchVin)
+    .limit(1);
+
+  if(!data || data.length === 0){
+    alert("ابحث عن مركبة أولاً");
+    return;
+  }
+
+  const car = data[0];
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const logo = new Image();
+  logo.src = "logo.png";
+
+  logo.onload = function(){
+    doc.addImage(logo, "PNG", 80, 10, 50, 50);
+
+    doc.setFontSize(20);
+    doc.text("OdoTrust Vehicle Report", 20, 75);
+
+    doc.setFontSize(14);
+    doc.text(`VIN: ${car.vin}`, 20, 95);
+    doc.text(`Make: ${car.make}`, 20, 110);
+    doc.text(`Model: ${car.model}`, 20, 125);
+    doc.text(`Year: ${car.year}`, 20, 140);
+    doc.text(`Mileage: ${car.mileage} KM`, 20, 155);
+    doc.text("Status: Odometer Verification Report", 20, 175);
+    doc.text("OdoTrust - Vehicle Odometer Verification", 20, 195);
+
+    doc.save("OdoTrust_Report.pdf");
+  };
+}
   const searchVin = document.getElementById("searchVin").value.trim();
 
   const { data } = await client
