@@ -309,14 +309,10 @@ async function saveVehicle(){
 }
 
 async function searchVehicle(){
+async function searchVehicle(){
 
- async function searchVehicle(){
-
-  const searchVin =
-    document.getElementById("searchVin").value;
-
-  const result =
-    document.getElementById("result");
+  const searchVin = document.getElementById("searchVin").value;
+  const result = document.getElementById("result");
 
   const { data, error } = await client
     .from("vehicles")
@@ -325,117 +321,31 @@ async function searchVehicle(){
     .limit(1);
 
   if(error){
-
-    result.innerHTML =
-      "حدث خطأ أثناء البحث";
-
+    result.innerHTML = "حدث خطأ أثناء البحث";
     return;
-
   }
 
   if(!data || data.length === 0){
-
-    result.innerHTML =
-      "لا توجد مركبة بهذا الرقم";
-
+    result.innerHTML = "لا توجد مركبة بهذا الرقم";
     return;
-
   }
 
   const car = data[0];
 
-  const { data: historyData } =
-    await client
-      .from("mileage_history")
-      .select("*")
-      .eq("vin", searchVin)
-      .order("created_at",
-      { ascending:false });
-
-  let tamperingDetected = false;
-
-  let readings =
-    historyData.map(item =>
-      Number(item.mileage)
-    );
-
-  for(let i = 0;
-      i < readings.length - 1;
-      i++){
-
-    if(readings[i]
-      < readings[i + 1]){
-
-      tamperingDetected = true;
-
-    }
-
-  }
-
-  let historyHtml =
-    `<div class="history">
-      <h3>سجل العدادات</h3>`;
-
-  historyData.forEach(item => {
-
-    historyHtml += `
-      <div class="history-item">
-        ${item.mileage} كم
-      </div>
-    `;
-
-  });
-
-  historyHtml += `</div>`;
-
-  let statusHtml = tamperingDetected
-    ?
-    `<div class="warning">
-      ⚠️ يوجد اشتباه تلاعب بالعداد
-    </div>`
-    :
-    `<div class="safe">
-      ✅ لا يوجد اشتباه واضح
-    </div>`;
-
   result.innerHTML = `
-
     <div class="result-box">
-
       <h2>نتيجة الفحص</h2>
 
-      <p>
-      <strong>الشركة:</strong>
-      ${car.make}
-      </p>
-
-      <p>
-      <strong>الموديل:</strong>
-      ${car.model}
-      </p>
-
-      <p>
-      <strong>السنة:</strong>
-      ${car.year}
-      </p>
-
-      <p>
-      <strong>العداد الحالي:</strong>
-      ${car.mileage}
-      كم
-      </p>
-
-      ${historyHtml}
-
-      ${statusHtml}
+      <p><strong>الشركة:</strong> ${car.make}</p>
+      <p><strong>الموديل:</strong> ${car.model}</p>
+      <p><strong>السنة:</strong> ${car.year}</p>
+      <p><strong>العداد الحالي:</strong> ${car.mileage} كم</p>
 
       <img 
-      src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
-      style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
+        src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}" 
+        style="background:white;padding:10px;border-radius:12px;margin-top:20px;"
       >
-
     </div>
-
   `;
 
 }
