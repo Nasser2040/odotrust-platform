@@ -326,8 +326,81 @@ async function searchVehicle(){
     </div>
   `;
 }
-  async function downloadPDF(){
+async function downloadPDF(){
+  const searchVin = document.getElementById("searchVin").value.trim();
 
+  const { data } = await client
+    .from("vehicles")
+    .select("*")
+    .eq("vin", searchVin)
+    .limit(1);
+
+  if(!data || data.length === 0){
+    alert("ابحث عن مركبة أولاً");
+    return;
+  }
+
+  const car = data[0];
+
+  const { data: historyData } = await client
+    .from("mileage_history")
+    .select("*")
+    .eq("vin", searchVin)
+    .order("created_at", { ascending:false });
+
+  const readings = (historyData || [])
+    .map(item => Number(item.mileage))
+    .filter(num => num > 0);
+
+  let tamperingDetected = false;
+
+  for(let i = 0; i < readings.length - 1; i++){
+    if(readings[i] < readings[i + 1]){
+      tamperingDetected = true;
+    }
+  }
+
+  const statusText = tamperingDetected
+    ? "Status: Odometer Tampering Suspected"
+    : "Status: No Clear Tampering Detected";
+
+  const reportWindow = window.open("", "_blank");
+
+  reportWindow.document.write(`
+    <html>
+    <head>
+      <title>OdoTrust Report</title>
+      <style>
+        body{font-family:Arial;padding:40px}
+        h1{color:#0f766e;text-align:center}
+        h2{color:${tamperingDetected ? "#b91c1c" : "#15803d"}}
+      </style>
+    </head>
+    <body>
+      <center>
+        <img src="logo.png" width="120">
+        <h1>OdoTrust Vehicle Report</h1>
+      </center>
+
+      <hr>
+
+      <h3>VIN: ${car.vin}</h3>
+      <h3>Make: ${car.make}</h3>
+      <h3>Model: ${car.model}</h3>
+      <h3>Year: ${car.year}</h3>
+      <h3>Mileage: ${car.mileage} KM</h3>
+
+      <br>
+
+      <h2>${statusText}</h2>
+
+      <p>OdoTrust - Vehicle Odometer Verification</p>
+    </body>
+    </html>
+  `);
+
+  reportWindow.print();
+}
   const searchVin =
     document.getElementById("searchVin").value.trim();
 
