@@ -10,6 +10,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
+  .info-card{
+  background:#0f172a;
+  padding:20px;
+  border-radius:16px;
+  border:1px solid #334155;
+  margin-bottom:20px;
+}
+
+.info-card p{
+  margin:12px 0;
+  font-size:17px;
+}
 body{margin:0;font-family:Arial;background:#0f172a;color:white}
 header{background:linear-gradient(135deg,#020617,#0f766e);padding:45px;text-align:center;border-bottom:4px solid #38bdf8}
 .logo{width:150px;margin-bottom:15px}
@@ -142,14 +154,29 @@ async function searchVehicle(){
 
   result.innerHTML = `
     <div class="result-box">
-      <h2>نتيجة الفحص</h2>
-      <p><strong>الشركة:</strong> ${car.make}</p>
-      <p><strong>الموديل:</strong> ${car.model}</p>
-      <p><strong>السنة:</strong> ${car.year}</p>
-      <p><strong>العداد الحالي:</strong> ${car.mileage} كم</p>
-      ${historyHtml}
-      ${statusHtml}
-      <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}">
+      <h2>🚗 نتيجة الفحص</h2>
+
+<div class="info-card">
+  <p><strong>رقم الشاصي:</strong> ${car.vin}</p>
+  <p><strong>الشركة:</strong> ${car.make}</p>
+  <p><strong>الموديل:</strong> ${car.model}</p>
+  <p><strong>السنة:</strong> ${car.year}</p>
+  <p><strong>العداد الحالي:</strong> ${car.mileage} كم</p>
+</div>
+
+${historyHtml}
+
+${statusHtml}
+
+<div style="text-align:center;margin-top:25px;">
+  <img 
+    class="qr"
+    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}"
+  >
+  <p style="margin-top:10px;color:#94a3b8;">
+    QR للتحقق من المركبة
+  </p>
+</div>
     </div>
   `;
 }
