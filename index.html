@@ -127,8 +127,10 @@ if(!user){
 
   if(error || historyError){
     message.style.color = "#f87171";
-    message.innerText = "حدث خطأ أثناء الحفظ";
-  }else{
+message.innerText =
+  error?.message ||
+  historyError?.message ||
+  "حدث خطأ أثناء الحفظ";  }else{
     message.style.color = "#4ade80";
     message.innerText = "تم حفظ المركبة بنجاح ✅";
   }
