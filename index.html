@@ -183,7 +183,25 @@ async function searchVehicle(){
   }
 
   const car = data[0];
+const { data: historyData } = await client
+  .from("mileage_history")
+  .select("*")
+  .eq("vin", vin)
+  .order("created_at",{ascending:false});
 
+const readings = (historyData || [])
+  .map(x=>Number(x.mileage))
+  .filter(x=>x>0);
+
+let tampering = false;
+
+for(let i=0;i<readings.length-1;i++){
+  const difference = Math.abs(readings[i] - readings[i+1]);
+
+  if(difference > 1000){
+    tampering = true;
+  }
+}
   const { data: historyData } = await client
     .from("mileage_history")
     .select("*")
@@ -260,7 +278,11 @@ async function downloadPDF(){
       <h3>Model: ${car.model}</h3>
       <h3>Year: ${car.year}</h3>
       <h3>Mileage: ${car.mileage} KM</h3>
-      <h2 style="color:#15803d;">Status: Vehicle Verification Report</h2>
+    ${tampering ? 
+  '<h2 style="color:#b91c1c;">Status: Odometer Tampering Suspected</h2>' 
+  : 
+  '<h2 style="color:#15803d;">Status: No Clear Tampering Detected</h2>'
+}
     </body>
     </html>
   `);
