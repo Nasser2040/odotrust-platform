@@ -327,10 +327,70 @@ async function searchVehicle(){
 }
 
 async function downloadPDF(){
-  alert("PDF نرجع له لاحقًا. البحث الآن يعمل.");
+const searchVin =
+  document.getElementById("searchVin").value.trim();
+
+const { data } = await client
+  .from("vehicles")
+  .select("*")
+  .eq("vin", searchVin)
+  .limit(1);
+
+if(!data || data.length === 0){
+
+  alert("ابحث عن مركبة أولاً");
+
+  return;
+
 }
 
-</script>
+const car = data[0];
+
+const reportWindow =
+  window.open("", "_blank");
+
+reportWindow.document.write(`
+
+  <html>
+
+  <head>
+
+    <title>OdoTrust Report</title>
+
+  </head>
+
+  <body style="font-family:Arial;padding:40px;">
+
+    <center>
+
+      <img src="logo.png" width="120">
+
+      <h1>OdoTrust Vehicle Report</h1>
+
+    </center>
+
+    <hr>
+    
+  <h3>VIN: ${car.vin}</h3>
+
+  <h3>Make: ${car.make}</h3>
+
+  <h3>Model: ${car.model}</h3>
+
+  <h3>Year: ${car.year}</h3>
+
+  <h3>Mileage: ${car.mileage} KM</h3>
+
+  </body>
+
+  </html>
+
+`);
+
+reportWindow.print();
+
+}
+  </script>
 
 </body>
-</html> 
+</html>
