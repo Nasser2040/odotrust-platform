@@ -335,25 +335,65 @@ async function logout(){
 }
 
 async function checkUser(){
-  const { data: { user } } = await client.auth.getUser();
 
-  const userStatus = document.getElementById("userStatus");
-  const savedCars = document.getElementById("savedCars");
+  const { data: { user } } =
+    await client.auth.getUser();
+
+  const userStatus =
+    document.getElementById("userStatus");
+
+  const savedCars =
+    document.getElementById("savedCars");
 
   if(user){
-    userStatus.innerHTML = "✅ مسجل دخول: " + user.email;
 
-    savedCars.innerHTML = `
-      <div class="info-card">
-        مرحبًا بك في لوحة OdoTrust
-      </div>
-    `;
+    userStatus.innerHTML =
+      "✅ مسجل دخول: " + user.email;
+
+    const { data: cars } =
+      await client
+        .from("vehicles")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("id", { ascending:false });
+
+    if(!cars || cars.length === 0){
+
+      savedCars.innerHTML =
+        "لا توجد مركبات محفوظة";
+
+      return;
+
+    }
+
+    let html = "";
+
+    cars.forEach(car => {
+
+      html += `
+        <div class="info-card">
+          <p>🚗 ${car.make} ${car.model}</p>
+          <p>📅 ${car.year}</p>
+          <p>📍 ${car.vin}</p>
+          <p>📊 ${car.mileage} كم</p>
+        </div>
+      `;
+
+    });
+
+    savedCars.innerHTML = html;
+
   }else{
-    userStatus.innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
-    savedCars.innerHTML = "لا توجد بيانات بعد";
-  }
-}
 
+    userStatus.innerHTML =
+      "❌ لا يوجد مستخدم مسجل دخول";
+
+    savedCars.innerHTML =
+      "لا توجد بيانات بعد";
+
+  }
+
+}
 checkUser();
 </script>
 
