@@ -197,7 +197,23 @@ footer{
 </div>
 
 </div>
+<div class="card">
 
+<h2>تسجيل الدخول</h2>
+
+<input id="email" type="email" placeholder="البريد الإلكتروني">
+
+<input id="password" type="password" placeholder="كلمة المرور">
+
+<button onclick="signUp()">إنشاء حساب</button>
+
+<button onclick="signIn()">تسجيل دخول</button>
+
+<button onclick="logout()">تسجيل خروج</button>
+
+<p id="authMessage"></p>
+
+</div>
 <footer>© 2026 OdoTrust | عداد موثوق</footer>
 
 <script>
@@ -390,6 +406,93 @@ Status: No Clear Tampering Detected
 `);
 
 reportWindow.print();
+
+}
+  async function signUp(){
+
+const email =
+  document.getElementById("email").value;
+
+const password =
+  document.getElementById("password").value;
+
+const authMessage =
+  document.getElementById("authMessage");
+
+const { error } =
+  await client.auth.signUp({
+
+    email,
+    password
+
+  });
+
+if(error){
+
+  authMessage.innerText =
+    error.message;
+
+  authMessage.style.color =
+    "#f87171";
+
+}else{
+
+  authMessage.innerText =
+    "تم إنشاء الحساب بنجاح ✅";
+
+  authMessage.style.color =
+    "#4ade80";
+
+}
+
+}
+
+async function signIn(){
+
+const email =
+  document.getElementById("email").value;
+
+const password =
+  document.getElementById("password").value;
+
+const authMessage =
+  document.getElementById("authMessage");
+
+const { error } =
+  await client.auth.signInWithPassword({
+
+    email,
+    password
+
+  });
+
+if(error){
+
+  authMessage.innerText =
+    error.message;
+
+  authMessage.style.color =
+    "#f87171";
+
+}else{
+
+  authMessage.innerText =
+    "تم تسجيل الدخول ✅";
+
+  authMessage.style.color =
+    "#4ade80";
+
+}
+
+}
+
+async function logout(){
+
+await client.auth.signOut();
+
+document.getElementById("authMessage")
+.innerText =
+"تم تسجيل الخروج 👋";
 
 }
   </script>
