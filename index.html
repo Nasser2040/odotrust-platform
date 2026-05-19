@@ -1,458 +1,494 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OdoTrust | عداد موثوق</title>
+
+<title>OdoTrust</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#0f172a;color:white}
-header{background:linear-gradient(135deg,#020617,#0f766e);padding:45px 20px;text-align:center;border-bottom:4px solid #38bdf8}
-.logo{width:150px;margin-bottom:15px}
-header h1{font-size:42px;margin:0}
-header span{color:#38bdf8}
-header p{color:#cbd5e1;font-size:18px}
-.container{max-width:950px;margin:auto;padding:30px}
-.card{background:#111827;padding:30px;border-radius:24px;margin-bottom:30px;border:1px solid #1e293b;box-shadow:0 10px 30px rgba(0,0,0,.35)}
-h2{text-align:center;color:#38bdf8;font-size:30px;margin-bottom:25px}
-input,button{width:100%;padding:15px;margin-top:14px;border-radius:12px;border:none;font-size:16px}
-input{background:#1e293b;color:white}
-button{background:#0f766e;color:white;font-weight:bold;cursor:pointer}
-button:hover{background:#14b8a6}
-#message,#authMessage{text-align:center;font-weight:bold}
-#result{margin-top:25px}
-.result-box{background:#1e293b;padding:35px;border-radius:24px;border:1px solid #334155;box-shadow:0 0 25px rgba(0,0,0,.35)}
-.info-card{background:#0f172a;padding:20px;border-radius:16px;border:1px solid #334155;margin-bottom:20px}
-.info-card p{font-size:17px;margin:12px 0}
-.history{margin-top:20px;background:#0f172a;padding:18px;border-radius:16px}
-.history-item{padding:10px;border-bottom:1px solid #334155}
-.warning{background:#7f1d1d;color:#fecaca;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
-.safe{background:#14532d;color:#bbf7d0;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
-.qr{background:white;padding:10px;border-radius:12px;margin-top:20px}
-footer{text-align:center;color:#94a3b8;padding:25px}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#020617;
+  color:white;
+  font-family:Arial;
+}
+
+header{
+  text-align:center;
+  padding:40px;
+  background:#0f172a;
+  border-bottom:3px solid #14b8a6;
+}
+
+header h1{
+  color:#38bdf8;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#0f172a;
+  padding:25px;
+  margin-bottom:25px;
+  border-radius:20px;
+  border:1px solid #1e293b;
+}
+
+h2{
+  color:#38bdf8;
+  text-align:center;
+}
+
+input,button{
+  width:100%;
+  padding:15px;
+  margin-top:12px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+}
+
+input{
+  background:#1e293b;
+  color:white;
+}
+
+button{
+  background:#0f766e;
+  color:white;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+button:hover{
+  background:#14b8a6;
+}
+
+.info-card{
+  background:#111827;
+  padding:20px;
+  border-radius:16px;
+  margin-top:15px;
+}
+
+#message,
+#authMessage{
+  text-align:center;
+  font-weight:bold;
+  margin-top:15px;
+}
+
+footer{
+  text-align:center;
+  padding:30px;
+  color:#94a3b8;
+}
+
 </style>
 </head>
 
 <body>
 
 <header>
-<img src="logo.png" class="logo" alt="OdoTrust Logo">
-<h1>عداد موثوق | <span>OdoTrust</span></h1>
-<p>منصة ذكية لحفظ وفحص بيانات المركبات وكشف التلاعب بالعداد</p>
+<h1>🚗 OdoTrust</h1>
+<p>عداد موثوق لفحص المركبات</p>
 </header>
 
 <div class="container">
 
 <div class="card">
-<h2>إضافة مركبة جديدة</h2>
+
+<h2>إضافة مركبة</h2>
+
 <input id="vin" placeholder="رقم الشاصي VIN">
 <input id="make" placeholder="الشركة">
 <input id="model" placeholder="الموديل">
-<input id="year" type="number" placeholder="سنة الصنع">
-<input id="mileage" type="number" placeholder="قراءة العداد">
-<button onclick="saveVehicle()">حفظ المركبة</button>
+<input id="year" type="number" placeholder="السنة">
+<input id="mileage" type="number" placeholder="العداد">
+
+<button onclick="saveVehicle()">
+حفظ المركبة
+</button>
+
 <p id="message"></p>
+
 </div>
 
 <div class="card">
-<h2>البحث عن مركبة</h2>
-<input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
-<button onclick="searchVehicle()">بحث عن المركبة</button>
-<div id="result"></div>
-<button onclick="downloadPDF()">تحميل تقرير PDF</button>
-</div>
 
-<div class="card">
 <h2>تسجيل الدخول</h2>
-  <input id="email" type="text" placeholder="البريد الإلكتروني أو رقم الجوال">
+
+<input id="email" placeholder="الإيميل أو رقم الجوال">
+
 <input id="password" type="password" placeholder="كلمة المرور">
-<button onclick="signUp()">إنشاء حساب</button>
-<button onclick="signIn()">تسجيل دخول</button>
-<button onclick="logout()">تسجيل خروج</button>
+
+<button onclick="signUp()">
+إنشاء حساب
+</button>
+
+<button onclick="signIn()">
+تسجيل دخول
+</button>
+
+<button onclick="logout()">
+تسجيل خروج
+</button>
+
 <p id="authMessage"></p>
+
 </div>
 
 <div class="card">
+
 <h2>لوحة المستخدم</h2>
-<p id="userStatus">لا يوجد مستخدم مسجل دخول</p>
-<div id="userPanel">
-<p>🚗 المركبات المحفوظة الخاصة بك</p>
-<div id="savedCars">لا توجد بيانات بعد</div>
-</div>
+
+<p id="userStatus">
+❌ لا يوجد مستخدم
+</p>
+
+<div id="savedCars">
+لا توجد مركبات
 </div>
 
 </div>
 
-<footer>© 2026 OdoTrust | عداد موثوق</footer>
+</div>
+
+<footer>
+© 2026 OdoTrust
+</footer>
 
 <script>
-const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
-const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
 
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL =
+"https://ضع-رابط-مشروعك.supabase.co";
 
-async function saveVehicle(){
-  const vin = document.getElementById("vin").value.trim();
-  const make = document.getElementById("make").value.trim();
-  const model = document.getElementById("model").value.trim();
-  const year = Number(document.getElementById("year").value);
-  const mileage = Number(document.getElementById("mileage").value);
-  const message = document.getElementById("message");
-const { data: { user } } =
-  await client.auth.getUser();
+const SUPABASE_KEY =
+"sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
 
-if(!user){
-  message.style.color = "#f87171";
-  message.innerText =
-    "يجب تسجيل الدخول أولاً";
-  return;
-
-}
-  const { error } = await client
-    .from("vehicles")
-.insert([{
-  vin,
-  make,
-  model,
-  year,
-  mileage,
-  user_id: user.id
-}]);
-  const { error: historyError } = await client
-    .from("mileage_history")
-    .insert([{ vin, mileage }]);
-
-  if(error || historyError){
-    message.style.color = "#f87171";
-message.innerText =
-  error?.message ||
-  historyError?.message ||
-  "حدث خطأ أثناء الحفظ";  }else{
-    message.style.color = "#4ade80";
-  message.innerText = "تم حفظ المركبة بنجاح ✅";
-checkUser();
-  }
-}
-
-async function searchVehicle(){
-  const searchVin = document.getElementById("searchVin").value.trim();
-  const result = document.getElementById("result");
-
-  const { data, error } = await client
-    .from("vehicles")
-    .select("*")
-    .eq("vin", searchVin)
-    .limit(1);
-
-  if(error){
-    result.innerHTML = "حدث خطأ أثناء البحث";
-    return;
-  }
-
-  if(!data || data.length === 0){
-    result.innerHTML = "لا توجد مركبة بهذا الرقم";
-    return;
-  }
-
-  const car = data[0];
-
-  const { data: historyData, error: historyError } = await client
-    .from("mileage_history")
-    .select("*")
-    .eq("vin", searchVin)
-    .order("created_at", { ascending:false });
-
-  if(historyError){
-    result.innerHTML = "حدث خطأ أثناء جلب سجل العدادات";
-    return;
-  }
-
-  const readings = (historyData || [])
-    .map(item => Number(item.mileage))
-    .filter(num => num > 0);
-
-  let tamperingDetected = false;
-
-  for(let i = 0; i < readings.length - 1; i++){
-    if(readings[i] < readings[i + 1]){
-      tamperingDetected = true;
-    }
-  }
-
-  let historyHtml = `<div class="history"><h3>سجل العدادات</h3>`;
-
-  if(!historyData || historyData.length === 0){
-    historyHtml += `<div class="history-item">لا يوجد سجل عدادات</div>`;
-  }else{
-    historyData.forEach(item => {
-      historyHtml += `<div class="history-item">${item.mileage} كم</div>`;
-    });
-  }
-
-  historyHtml += `</div>`;
-
-  const statusHtml = tamperingDetected
-    ? `<div class="warning">⚠️ يوجد اشتباه تلاعب بالعداد</div>`
-    : `<div class="safe">✅ لا يوجد اشتباه واضح</div>`;
-
-  result.innerHTML = `
-    <div class="result-box">
-      <h2>🚗 نتيجة الفحص</h2>
-
-      <div class="info-card">
-        <p><strong>رقم الشاصي:</strong> ${car.vin}</p>
-        <p><strong>الشركة:</strong> ${car.make}</p>
-        <p><strong>الموديل:</strong> ${car.model}</p>
-        <p><strong>السنة:</strong> ${car.year}</p>
-        <p><strong>العداد الحالي:</strong> ${car.mileage} كم</p>
-      </div>
-
-      ${historyHtml}
-      ${statusHtml}
-
-      <div style="text-align:center;margin-top:25px;">
-        <img 
-          class="qr" 
-          src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}"
-          alt="QR Code"
-        >
-        <p style="color:#94a3b8;">QR للتحقق من المركبة</p>
-      </div>
-    </div>
-  `;
-}
-
-async function downloadPDF(){
-  const searchVin = document.getElementById("searchVin").value.trim();
-
-  const { data } = await client
-    .from("vehicles")
-    .select("*")
-    .eq("vin", searchVin)
-    .limit(1);
-
-  if(!data || data.length === 0){
-    alert("ابحث عن مركبة أولاً");
-    return;
-  }
-
-  const car = data[0];
-
-  const reportWindow = window.open("", "_blank");
-
-  reportWindow.document.write(`
-    <html>
-    <head>
-      <title>OdoTrust Report</title>
-    </head>
-    <body style="font-family:Arial;padding:40px;">
-      <center>
-        <img src="logo.png" width="120">
-        <h1>OdoTrust Vehicle Report</h1>
-      </center>
-
-      <hr>
-
-      <h3>VIN: ${car.vin}</h3>
-      <h3>Make: ${car.make}</h3>
-      <h3>Model: ${car.model}</h3>
-      <h3>Year: ${car.year}</h3>
-      <h3>Mileage: ${car.mileage} KM</h3>
-
-      <h2 style="color:#15803d;">
-        Status: No Clear Tampering Detected
-      </h2>
-    </body>
-    </html>
-  `);
-
-  reportWindow.print();
-}
+const client =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
 async function signUp(){
-  let email = document.getElementById("email").value.trim();
 
-if(!email.includes("@")){
-  email = email + "@odotrust.local";
+let email =
+document.getElementById("email")
+.value.trim();
+
+const password =
+document.getElementById("password")
+.value.trim();
+
+const authMessage =
+document.getElementById("authMessage");
+
+if(email.startsWith("05")){
+
+email =
+`odotrust.local@${email}`;
+
 }
-  const password = document.getElementById("password").value.trim();
-  const authMessage = document.getElementById("authMessage");
 
-  if(!email || !password){
-    authMessage.innerText = "اكتب البريد الإلكتروني وكلمة المرور";
-    authMessage.style.color = "#f87171";
-    return;
-  }
+const { error } =
+await client.auth.signUp({
 
-  const { error } = await client.auth.signUp({
-    email: email,
-    password: password
-  });
+email,
+password
 
-  if(error){
-    authMessage.innerText = error.message;
-    authMessage.style.color = "#f87171";
-  }else{
-    authMessage.innerText = "تم إنشاء الحساب بنجاح ✅";
-    authMessage.style.color = "#4ade80";
-    checkUser();
-  }
+});
+
+if(error){
+
+authMessage.innerText =
+error.message;
+
+authMessage.style.color =
+"#f87171";
+
+}else{
+
+authMessage.innerText =
+"تم إنشاء الحساب ✅";
+
+authMessage.style.color =
+"#4ade80";
+
+}
+
 }
 
 async function signIn(){
-let email = document.getElementById("email").value.trim();
 
-if(!email.includes("@")){
-  email = email + "@odotrust.local";
+let email =
+document.getElementById("email")
+.value.trim();
+
+const password =
+document.getElementById("password")
+.value.trim();
+
+const authMessage =
+document.getElementById("authMessage");
+
+if(email.startsWith("05")){
+
+email =
+`odotrust.local@${email}`;
+
 }
-  const password = document.getElementById("password").value.trim();
-  const authMessage = document.getElementById("authMessage");
 
-  const { error } = await client.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
+const { error } =
+await client.auth.signInWithPassword({
 
-  if(error){
-    authMessage.innerText = error.message;
-    authMessage.style.color = "#f87171";
-  }else{
-    authMessage.innerText = "تم تسجيل الدخول ✅";
-    authMessage.style.color = "#4ade80";
-    checkUser();
-  }
+email,
+password
+
+});
+
+if(error){
+
+authMessage.innerText =
+error.message;
+
+authMessage.style.color =
+"#f87171";
+
+}else{
+
+authMessage.innerText =
+"تم تسجيل الدخول ✅";
+
+authMessage.style.color =
+"#4ade80";
+
+checkUser();
+
+}
+
 }
 
 async function logout(){
-  await client.auth.signOut();
 
-  document.getElementById("authMessage").innerText =
-    "تم تسجيل الخروج 👋";
+await client.auth.signOut();
 
-  checkUser();
+document.getElementById("authMessage")
+.innerText =
+"تم تسجيل الخروج 👋";
+
+checkUser();
+
+}
+
+async function saveVehicle(){
+
+const vin =
+document.getElementById("vin")
+.value.trim();
+
+const make =
+document.getElementById("make")
+.value.trim();
+
+const model =
+document.getElementById("model")
+.value.trim();
+
+const year =
+Number(
+document.getElementById("year")
+.value
+);
+
+const mileage =
+Number(
+document.getElementById("mileage")
+.value
+);
+
+const message =
+document.getElementById("message");
+
+const { data:{ user } } =
+await client.auth.getUser();
+
+if(!user){
+
+message.innerText =
+"يجب تسجيل الدخول أولاً";
+
+message.style.color =
+"#f87171";
+
+return;
+
+}
+
+const { error } =
+await client
+.from("vehicles")
+.insert([{
+
+vin,
+make,
+model,
+year,
+mileage,
+user_id:user.id
+
+}]);
+
+if(error){
+
+message.innerText =
+error.message;
+
+message.style.color =
+"#f87171";
+
+}else{
+
+message.innerText =
+"تم حفظ المركبة ✅";
+
+message.style.color =
+"#4ade80";
+
+checkUser();
+
+}
+
+}
+
+async function deleteCar(id){
+
+const confirmDelete =
+confirm("هل تريد حذف المركبة؟");
+
+if(!confirmDelete) return;
+
+await client
+.from("vehicles")
+.delete()
+.eq("id",id);
+
+checkUser();
+
+}
+
+async function editCar(id){
+
+const newMileage =
+prompt("أدخل العداد الجديد");
+
+if(!newMileage) return;
+
+await client
+.from("vehicles")
+.update({
+
+mileage:Number(newMileage)
+
+})
+.eq("id",id);
+
+checkUser();
+
 }
 
 async function checkUser(){
 
-  const { data: { user } } =
-    await client.auth.getUser();
+const { data:{ user } } =
+await client.auth.getUser();
 
-  const userStatus =
-    document.getElementById("userStatus");
+const userStatus =
+document.getElementById("userStatus");
 
-  const savedCars =
-    document.getElementById("savedCars");
+const savedCars =
+document.getElementById("savedCars");
 
-  if(user){
+if(user){
 
-    userStatus.innerHTML =
-      "✅ مسجل دخول: " + user.email;
+userStatus.innerHTML =
+"✅ مسجل دخول: " + user.email;
 
-    const { data: cars } =
-      await client
-        .from("vehicles")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("id", { ascending:false });
+const { data:cars } =
+await client
+.from("vehicles")
+.select("*")
+.eq("user_id",user.id)
+.order("id",{ascending:false});
 
-    if(!cars || cars.length === 0){
+if(!cars || cars.length===0){
 
-      savedCars.innerHTML =
-        "لا توجد مركبات محفوظة";
+savedCars.innerHTML =
+"لا توجد مركبات";
 
-      return;
+return;
 
-    }
+}
 
-    let html = "";
+let html = "";
 
-    cars.forEach(car => {
+cars.forEach(car=>{
 
-      html += `
-        <div class="info-card">
-          <p>🚗 ${car.make} ${car.model}</p>
-          <p>📅 ${car.year}</p>
-          <p>📍 ${car.vin}</p>
-          <p>📊 ${car.mileage} كم</p>
-<button onclick="deleteCar(${car.id})">
-  حذف المركبة
-</button>
+html += `
+
+<div class="info-card">
+
+<p>🚗 ${car.make} ${car.model}</p>
+
+<p>📅 ${car.year}</p>
+
+<p>📍 ${car.vin}</p>
+
+<p>📊 ${car.mileage} كم</p>
 
 <button onclick="editCar(${car.id})">
-  تعديل المركبة
+تعديل المركبة
 </button>
-      `;
 
-    });
+<button onclick="deleteCar(${car.id})">
+حذف المركبة
+</button>
 
-    savedCars.innerHTML = html;
+</div>
 
-  }else{
+`;
 
-    userStatus.innerHTML =
-      "❌ لا يوجد مستخدم مسجل دخول";
+});
 
-    savedCars.innerHTML =
-      "لا توجد بيانات بعد";
+savedCars.innerHTML = html;
 
-  }
+}else{
 
-}
- async function deleteCar(id){
-   async function editCar(id){
-  const newMileage =
-    prompt("أدخل العداد الجديد");
+userStatus.innerHTML =
+"❌ لا يوجد مستخدم";
 
-  if(!newMileage) return;
-
-  const { error } =
-    await client
-      .from("vehicles")
-      .update({
-        mileage: Number(newMileage)
-      })
-      .eq("id", id);
-
-  if(error){
-
-    alert("حدث خطأ أثناء التعديل");
-
-  }else{
-
-    alert("تم تعديل المركبة ✅");
-
-    checkUser();
-
-  }
+savedCars.innerHTML =
+"لا توجد مركبات";
 
 }
-  const confirmDelete =
-    confirm("هل تريد حذف المركبة؟");
-
-  if(!confirmDelete) return;
-
-  const { error } =
-    await client
-      .from("vehicles")
-      .delete()
-      .eq("id", id);
-
-  if(error){
-
-    alert("حدث خطأ أثناء الحذف");
-
-  }else{
-
-    alert("تم حذف المركبة ✅");
-    checkUser();
-
-  }
 
 }
+
 checkUser();
+
 </script>
 
 </body>
