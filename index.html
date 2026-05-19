@@ -214,6 +214,27 @@ footer{
 <p id="authMessage"></p>
 
 </div>
+  <div class="card">
+
+<h2>لوحة المستخدم</h2>
+
+<p id="userStatus">
+لا يوجد مستخدم مسجل دخول
+</p>
+
+<div id="userPanel">
+
+<p>🚗 المركبات المحفوظة الخاصة بك</p>
+
+<div id="savedCars">
+
+لا توجد بيانات بعد
+
+</div>
+
+</div>
+
+</div>
 <footer>© 2026 OdoTrust | عداد موثوق</footer>
 
 <script>
@@ -335,8 +356,9 @@ async function searchVehicle(){
         <img 
           class="qr" 
           src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}"
-          alt="QR Code"
-          <p style="color:#94a3b8;">QR للتحقق من المركبة</p>
+>
+
+<p style="color:#94a3b8;">QR للتحقق من المركبة</p>
       </div>
     </div>
   `;
@@ -495,6 +517,38 @@ document.getElementById("authMessage")
 "تم تسجيل الخروج 👋";
 
 }
+  async function checkUser(){
+
+const { data: { user } } =
+  await client.auth.getUser();
+
+const userStatus =
+  document.getElementById("userStatus");
+
+const savedCars =
+  document.getElementById("savedCars");
+
+if(user){
+
+  userStatus.innerHTML =
+    "✅ مسجل دخول: " + user.email;
+
+  savedCars.innerHTML = `
+    <div class="info-card">
+      مرحبًا بك في لوحة OdoTrust
+    </div>
+  `;
+
+}else{
+
+  userStatus.innerHTML =
+    "❌ لا يوجد مستخدم مسجل دخول";
+
+}
+
+}
+
+checkUser();
   </script>
 
 </body>
