@@ -402,7 +402,34 @@ async function checkUser(){
 
 }
   async function deleteCar(id){
+async function editCar(id){
 
+  const newMileage =
+    prompt("أدخل العداد الجديد");
+
+  if(!newMileage) return;
+
+  const { error } =
+    await client
+      .from("vehicles")
+      .update({
+        mileage: Number(newMileage)
+      })
+      .eq("id", id);
+
+  if(error){
+
+    alert("حدث خطأ أثناء التعديل");
+
+  }else{
+
+    alert("تم تعديل المركبة ✅");
+
+    checkUser();
+
+  }
+
+}
   const confirmDelete =
     confirm("هل تريد حذف المركبة؟");
 
