@@ -192,12 +192,20 @@ async function searchVehicle(){
 
   const readings = (historyData || []).map(x=>Number(x.mileage)).filter(x=>x>0);
 
-  let tampering = false;
-  for(let i=0;i<readings.length-1;i++){
-    if(readings[i] < readings[i+1]){
-      tampering = true;
-    }
+ let tampering = false;
+
+for(let i=0;i<readings.length-1;i++){
+
+  const difference =
+    Math.abs(readings[i] - readings[i+1]);
+
+  if(difference > 1000){
+
+    tampering = true;
+
   }
+
+}
 
   let historyHtml = "<h3>سجل العدادات</h3>";
   (historyData || []).forEach(item=>{
