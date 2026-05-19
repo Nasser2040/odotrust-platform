@@ -67,7 +67,7 @@ footer{text-align:center;color:#94a3b8;padding:25px}
 
 <div class="card">
 <h2>تسجيل الدخول</h2>
-<input id="email" type="email" placeholder="البريد الإلكتروني">
+  <input id="email" type="text" placeholder="البريد الإلكتروني أو رقم الجوال">
 <input id="password" type="password" placeholder="كلمة المرور">
 <button onclick="signUp()">إنشاء حساب</button>
 <button onclick="signIn()">تسجيل دخول</button>
@@ -255,7 +255,11 @@ async function downloadPDF(){
 }
 
 async function signUp(){
-  const email = document.getElementById("email").value.trim();
+  let email = document.getElementById("email").value.trim();
+
+if(!email.includes("@")){
+  email = email + "@odotrust.local";
+}
   const password = document.getElementById("password").value.trim();
   const authMessage = document.getElementById("authMessage");
 
@@ -281,7 +285,11 @@ async function signUp(){
 }
 
 async function signIn(){
-  const email = document.getElementById("email").value.trim();
+let email = document.getElementById("email").value.trim();
+
+if(!email.includes("@")){
+  email = email + "@odotrust.local";
+}
   const password = document.getElementById("password").value.trim();
   const authMessage = document.getElementById("authMessage");
 
