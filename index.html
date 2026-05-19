@@ -9,161 +9,30 @@
 
 <style>
 *{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:white;
-}
-
-header{
-  background:linear-gradient(135deg,#020617,#0f766e);
-  padding:45px 20px;
-  text-align:center;
-  border-bottom:4px solid #38bdf8;
-}
-
-.logo{
-  width:150px;
-  margin-bottom:15px;
-}
-
-header h1{
-  font-size:42px;
-  margin:0;
-}
-
-header span{
-  color:#38bdf8;
-}
-
-header p{
-  color:#cbd5e1;
-  font-size:18px;
-}
-
-.container{
-  max-width:950px;
-  margin:auto;
-  padding:30px;
-}
-
-.card{
-  background:#111827;
-  padding:30px;
-  border-radius:24px;
-  margin-bottom:30px;
-  border:1px solid #1e293b;
-  box-shadow:0 10px 30px rgba(0,0,0,.35);
-}
-
-h2{
-  text-align:center;
-  color:#38bdf8;
-  font-size:30px;
-  margin-bottom:25px;
-}
-
-input,button{
-  width:100%;
-  padding:15px;
-  margin-top:14px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-}
-
-input{
-  background:#1e293b;
-  color:white;
-}
-
-button{
-  background:#0f766e;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:hover{
-  background:#14b8a6;
-}
-
-#message{
-  text-align:center;
-  font-weight:bold;
-}
-
-#result{
-  margin-top:25px;
-}
-
-.result-box{
-  background:#1e293b;
-  padding:35px;
-  border-radius:24px;
-  border:1px solid #334155;
-  box-shadow:0 0 25px rgba(0,0,0,.35);
-}
-
-.info-card{
-  background:#0f172a;
-  padding:20px;
-  border-radius:16px;
-  border:1px solid #334155;
-  margin-bottom:20px;
-}
-
-.info-card p{
-  font-size:17px;
-  margin:12px 0;
-}
-
-.history{
-  margin-top:20px;
-  background:#0f172a;
-  padding:18px;
-  border-radius:16px;
-}
-
-.history-item{
-  padding:10px;
-  border-bottom:1px solid #334155;
-}
-
-.warning{
-  background:#7f1d1d;
-  color:#fecaca;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-  font-weight:bold;
-  margin-top:20px;
-}
-
-.safe{
-  background:#14532d;
-  color:#bbf7d0;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-  font-weight:bold;
-  margin-top:20px;
-}
-
-.qr{
-  background:white;
-  padding:10px;
-  border-radius:12px;
-  margin-top:20px;
-}
-
-footer{
-  text-align:center;
-  color:#94a3b8;
-  padding:25px;
-}
+body{margin:0;font-family:Arial;background:#0f172a;color:white}
+header{background:linear-gradient(135deg,#020617,#0f766e);padding:45px 20px;text-align:center;border-bottom:4px solid #38bdf8}
+.logo{width:150px;margin-bottom:15px}
+header h1{font-size:42px;margin:0}
+header span{color:#38bdf8}
+header p{color:#cbd5e1;font-size:18px}
+.container{max-width:950px;margin:auto;padding:30px}
+.card{background:#111827;padding:30px;border-radius:24px;margin-bottom:30px;border:1px solid #1e293b;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+h2{text-align:center;color:#38bdf8;font-size:30px;margin-bottom:25px}
+input,button{width:100%;padding:15px;margin-top:14px;border-radius:12px;border:none;font-size:16px}
+input{background:#1e293b;color:white}
+button{background:#0f766e;color:white;font-weight:bold;cursor:pointer}
+button:hover{background:#14b8a6}
+#message,#authMessage{text-align:center;font-weight:bold}
+#result{margin-top:25px}
+.result-box{background:#1e293b;padding:35px;border-radius:24px;border:1px solid #334155;box-shadow:0 0 25px rgba(0,0,0,.35)}
+.info-card{background:#0f172a;padding:20px;border-radius:16px;border:1px solid #334155;margin-bottom:20px}
+.info-card p{font-size:17px;margin:12px 0}
+.history{margin-top:20px;background:#0f172a;padding:18px;border-radius:16px}
+.history-item{padding:10px;border-bottom:1px solid #334155}
+.warning{background:#7f1d1d;color:#fecaca;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
+.safe{background:#14532d;color:#bbf7d0;padding:15px;border-radius:12px;text-align:center;font-weight:bold;margin-top:20px}
+.qr{background:white;padding:10px;border-radius:12px;margin-top:20px}
+footer{text-align:center;color:#94a3b8;padding:25px}
 </style>
 </head>
 
@@ -193,48 +62,30 @@ footer{
 <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
 <button onclick="searchVehicle()">بحث عن المركبة</button>
 <div id="result"></div>
-  <button onclick="downloadPDF()">تحميل تقرير PDF</button>
+<button onclick="downloadPDF()">تحميل تقرير PDF</button>
 </div>
 
-</div>
 <div class="card">
-
 <h2>تسجيل الدخول</h2>
-
 <input id="email" type="email" placeholder="البريد الإلكتروني">
-
 <input id="password" type="password" placeholder="كلمة المرور">
-
 <button onclick="signUp()">إنشاء حساب</button>
-
 <button onclick="signIn()">تسجيل دخول</button>
-
 <button onclick="logout()">تسجيل خروج</button>
-
 <p id="authMessage"></p>
-
 </div>
-  <div class="card">
 
+<div class="card">
 <h2>لوحة المستخدم</h2>
-
-<p id="userStatus">
-لا يوجد مستخدم مسجل دخول
-</p>
-
+<p id="userStatus">لا يوجد مستخدم مسجل دخول</p>
 <div id="userPanel">
-
 <p>🚗 المركبات المحفوظة الخاصة بك</p>
-
-<div id="savedCars">
-
-لا توجد بيانات بعد
-
+<div id="savedCars">لا توجد بيانات بعد</div>
+</div>
 </div>
 
 </div>
 
-</div>
 <footer>© 2026 OdoTrust | عداد موثوق</footer>
 
 <script>
@@ -313,20 +164,13 @@ async function searchVehicle(){
     }
   }
 
-  let historyHtml = `
-    <div class="history">
-      <h3>سجل العدادات</h3>
-  `;
+  let historyHtml = `<div class="history"><h3>سجل العدادات</h3>`;
 
   if(!historyData || historyData.length === 0){
     historyHtml += `<div class="history-item">لا يوجد سجل عدادات</div>`;
   }else{
     historyData.forEach(item => {
-      historyHtml += `
-        <div class="history-item">
-          ${item.mileage} كم
-        </div>
-      `;
+      historyHtml += `<div class="history-item">${item.mileage} كم</div>`;
     });
   }
 
@@ -349,207 +193,144 @@ async function searchVehicle(){
       </div>
 
       ${historyHtml}
-
       ${statusHtml}
 
       <div style="text-align:center;margin-top:25px;">
         <img 
           class="qr" 
           src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${searchVin}"
->
-
-<p style="color:#94a3b8;">QR للتحقق من المركبة</p>
+          alt="QR Code"
+        >
+        <p style="color:#94a3b8;">QR للتحقق من المركبة</p>
       </div>
     </div>
   `;
 }
 
 async function downloadPDF(){
-const searchVin =
-  document.getElementById("searchVin").value.trim();
+  const searchVin = document.getElementById("searchVin").value.trim();
 
-const { data } = await client
-  .from("vehicles")
-  .select("*")
-  .eq("vin", searchVin)
-  .limit(1);
+  const { data } = await client
+    .from("vehicles")
+    .select("*")
+    .eq("vin", searchVin)
+    .limit(1);
 
-if(!data || data.length === 0){
+  if(!data || data.length === 0){
+    alert("ابحث عن مركبة أولاً");
+    return;
+  }
 
-  alert("ابحث عن مركبة أولاً");
+  const car = data[0];
 
-  return;
+  const reportWindow = window.open("", "_blank");
 
+  reportWindow.document.write(`
+    <html>
+    <head>
+      <title>OdoTrust Report</title>
+    </head>
+    <body style="font-family:Arial;padding:40px;">
+      <center>
+        <img src="logo.png" width="120">
+        <h1>OdoTrust Vehicle Report</h1>
+      </center>
+
+      <hr>
+
+      <h3>VIN: ${car.vin}</h3>
+      <h3>Make: ${car.make}</h3>
+      <h3>Model: ${car.model}</h3>
+      <h3>Year: ${car.year}</h3>
+      <h3>Mileage: ${car.mileage} KM</h3>
+
+      <h2 style="color:#15803d;">
+        Status: No Clear Tampering Detected
+      </h2>
+    </body>
+    </html>
+  `);
+
+  reportWindow.print();
 }
 
-const car = data[0];
+async function signUp(){
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const authMessage = document.getElementById("authMessage");
 
-const reportWindow =
-  window.open("", "_blank");
+  if(!email || !password){
+    authMessage.innerText = "اكتب البريد الإلكتروني وكلمة المرور";
+    authMessage.style.color = "#f87171";
+    return;
+  }
 
-reportWindow.document.write(`
-
-  <html>
-
-  <head>
-
-    <title>OdoTrust Report</title>
-
-  </head>
-
-  <body style="font-family:Arial;padding:40px;">
-
-    <center>
-
-      <img src="logo.png" width="120">
-
-      <h1>OdoTrust Vehicle Report</h1>
-
-    </center>
-
-    <hr>
-    
-  <h3>VIN: ${car.vin}</h3>
-
-  <h3>Make: ${car.make}</h3>
-
-  <h3>Model: ${car.model}</h3>
-
-  <h3>Year: ${car.year}</h3>
-
-  <h3>Mileage: ${car.mileage} KM</h3>
-<h2 style="color:#15803d;">
-Status: No Clear Tampering Detected
-</h2>
-  </body>
-
-  </html>
-
-`);
-
-reportWindow.print();
-
-}
-  async function signUp(){
-
-const email =
-  document.getElementById("email").value;
-
-const password =
-  document.getElementById("password").value;
-
-const authMessage =
-  document.getElementById("authMessage");
-
-const { error } =
-  await client.auth.signUp({
-
-    email,
-    password
-
+  const { error } = await client.auth.signUp({
+    email: email,
+    password: password
   });
 
-if(error){
-
-  authMessage.innerText =
-    error.message;
-
-  authMessage.style.color =
-    "#f87171";
-
-}else{
-
-  authMessage.innerText =
-    "تم إنشاء الحساب بنجاح ✅";
-
-  authMessage.style.color =
-    "#4ade80";
-
-}
-
+  if(error){
+    authMessage.innerText = error.message;
+    authMessage.style.color = "#f87171";
+  }else{
+    authMessage.innerText = "تم إنشاء الحساب بنجاح ✅";
+    authMessage.style.color = "#4ade80";
+    checkUser();
+  }
 }
 
 async function signIn(){
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const authMessage = document.getElementById("authMessage");
 
-const email =
-  document.getElementById("email").value;
-
-const password =
-  document.getElementById("password").value;
-
-const authMessage =
-  document.getElementById("authMessage");
-
-const { error } =
-  await client.auth.signInWithPassword({
-
-    email,
-    password
-
+  const { error } = await client.auth.signInWithPassword({
+    email: email,
+    password: password
   });
 
-if(error){
-
-  authMessage.innerText =
-    error.message;
-
-  authMessage.style.color =
-    "#f87171";
-
-}else{
-
-  authMessage.innerText =
-    "تم تسجيل الدخول ✅";
-
-  authMessage.style.color =
-    "#4ade80";
-
-}
-
+  if(error){
+    authMessage.innerText = error.message;
+    authMessage.style.color = "#f87171";
+  }else{
+    authMessage.innerText = "تم تسجيل الدخول ✅";
+    authMessage.style.color = "#4ade80";
+    checkUser();
+  }
 }
 
 async function logout(){
+  await client.auth.signOut();
 
-await client.auth.signOut();
+  document.getElementById("authMessage").innerText =
+    "تم تسجيل الخروج 👋";
 
-document.getElementById("authMessage")
-.innerText =
-"تم تسجيل الخروج 👋";
-
-}
-  async function checkUser(){
-
-const { data: { user } } =
-  await client.auth.getUser();
-
-const userStatus =
-  document.getElementById("userStatus");
-
-const savedCars =
-  document.getElementById("savedCars");
-
-if(user){
-
-  userStatus.innerHTML =
-    "✅ مسجل دخول: " + user.email;
-
-  savedCars.innerHTML = `
-    <div class="info-card">
-      مرحبًا بك في لوحة OdoTrust
-    </div>
-  `;
-
-}else{
-
-  userStatus.innerHTML =
-    "❌ لا يوجد مستخدم مسجل دخول";
-
+  checkUser();
 }
 
+async function checkUser(){
+  const { data: { user } } = await client.auth.getUser();
+
+  const userStatus = document.getElementById("userStatus");
+  const savedCars = document.getElementById("savedCars");
+
+  if(user){
+    userStatus.innerHTML = "✅ مسجل دخول: " + user.email;
+
+    savedCars.innerHTML = `
+      <div class="info-card">
+        مرحبًا بك في لوحة OdoTrust
+      </div>
+    `;
+  }else{
+    userStatus.innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
+    savedCars.innerHTML = "لا توجد بيانات بعد";
+  }
 }
 
 checkUser();
-  </script>
+</script>
 
 </body>
 </html>
