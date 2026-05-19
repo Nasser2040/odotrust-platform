@@ -377,10 +377,13 @@ async function checkUser(){
           <p>📅 ${car.year}</p>
           <p>📍 ${car.vin}</p>
           <p>📊 ${car.mileage} كم</p>
-          <button onclick="deleteCar(${car.id})">
+<button onclick="deleteCar(${car.id})">
   حذف المركبة
 </button>
-        </div>
+
+<button onclick="editCar(${car.id})">
+  تعديل المركبة
+</button>
       `;
 
     });
