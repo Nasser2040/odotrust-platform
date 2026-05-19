@@ -101,11 +101,25 @@ async function saveVehicle(){
   const year = Number(document.getElementById("year").value);
   const mileage = Number(document.getElementById("mileage").value);
   const message = document.getElementById("message");
+const { data: { user } } =
+  await client.auth.getUser();
 
+if(!user){
+  message.style.color = "#f87171";
+  message.innerText =
+    "يجب تسجيل الدخول أولاً";
+  return;
+}
   const { error } = await client
     .from("vehicles")
-    .insert([{ vin, make, model, year, mileage }]);
-
+.insert([{
+  vin,
+  make,
+  model,
+  year,
+  mileage,
+  user_id: user.id
+}]);
   const { error: historyError } = await client
     .from("mileage_history")
     .insert([{ vin, mileage }]);
