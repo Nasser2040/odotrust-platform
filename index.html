@@ -377,6 +377,9 @@ async function checkUser(){
           <p>📅 ${car.year}</p>
           <p>📍 ${car.vin}</p>
           <p>📊 ${car.mileage} كم</p>
+          <button onclick="deleteCar(${car.id})">
+  حذف المركبة
+</button>
         </div>
       `;
 
@@ -391,6 +394,31 @@ async function checkUser(){
 
     savedCars.innerHTML =
       "لا توجد بيانات بعد";
+
+  }
+
+}
+  async function deleteCar(id){
+
+  const confirmDelete =
+    confirm("هل تريد حذف المركبة؟");
+
+  if(!confirmDelete) return;
+
+  const { error } =
+    await client
+      .from("vehicles")
+      .delete()
+      .eq("id", id);
+
+  if(error){
+
+    alert("حدث خطأ أثناء الحذف");
+
+  }else{
+
+    alert("تم حذف المركبة ✅");
+    checkUser();
 
   }
 
