@@ -10,6 +10,80 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
+ .hero{
+  position:relative;
+  text-align:center;
+  padding:90px 20px;
+  overflow:hidden;
+  background:
+  linear-gradient(
+    135deg,
+    #020617,
+    #0f172a,
+    #0f766e
+  );
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:
+  radial-gradient(
+    circle at top,
+    rgba(56,189,248,.15),
+    transparent 60%
+  );
+}
+
+.hero-content{
+  position:relative;
+  z-index:2;
+}
+
+.logo{
+  width:150px;
+  margin-bottom:20px;
+  filter:
+  drop-shadow(0 0 20px rgba(56,189,248,.5));
+}
+
+.hero h1{
+  font-size:55px;
+  margin:0;
+  color:#38bdf8;
+}
+
+.hero h3{
+  font-size:28px;
+  color:white;
+  margin-top:15px;
+}
+
+.hero p{
+  color:#cbd5e1;
+  font-size:18px;
+  max-width:700px;
+  margin:20px auto;
+  line-height:1.8;
+}
+
+.hero-btn{
+  width:auto;
+  padding:16px 35px;
+  background:#38bdf8;
+  color:#020617;
+  font-size:18px;
+  border-radius:16px;
+  border:none;
+  cursor:pointer;
+  transition:.3s;
+  font-weight:bold;
+}
+
+.hero-btn:hover{
+  transform:scale(1.05);
+  background:white;
+} 
 
 *{
   box-sizing:border-box;
