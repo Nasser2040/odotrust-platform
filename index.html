@@ -113,13 +113,61 @@ header{
   margin:auto;
   padding:25px;
 }
-
 .card{
-  background:#0f172a;
-  padding:25px;
-  border-radius:20px;
-  margin-bottom:25px;
-  border:1px solid #1e293b;
+  position:relative;
+  background:
+  rgba(15,23,42,.75);
+
+  backdrop-filter:
+  blur(18px);
+
+  border:
+  1px solid rgba(255,255,255,.08);
+
+  padding:30px;
+
+  border-radius:28px;
+
+  margin-bottom:30px;
+
+  box-shadow:
+  0 10px 40px rgba(0,0,0,.35);
+
+  overflow:hidden;
+
+  transition:.35s;
+}
+
+.card::before{
+  content:"";
+
+  position:absolute;
+
+  inset:0;
+
+  background:
+  linear-gradient(
+    135deg,
+    rgba(56,189,248,.08),
+    transparent
+  );
+
+  pointer-events:none;
+}
+
+.card:hover{
+
+  transform:
+  translateY(-6px);
+
+  border-color:
+  rgba(56,189,248,.4);
+
+  box-shadow:
+  0 20px 60px rgba(56,189,248,.15);
+
+}
+
 }
 
 h1,h2{
