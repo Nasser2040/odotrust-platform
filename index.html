@@ -523,7 +523,8 @@ document.getElementById("make").value.trim();
 
 const model =
 document.getElementById("model").value.trim();
-
+const imageFile =
+document.getElementById("image").files[0];
 const year =
 Number(
 document.getElementById("year").value
@@ -537,6 +538,25 @@ document.getElementById("mileage").value
 const message =
 document.getElementById("message");
 
+ let imageUrl = "";
+
+if(imageFile){
+
+const fileName =
+Date.now() + "-" + imageFile.name;
+
+await client.storage
+.from("cars")
+.upload(fileName,imageFile);
+
+const { data } =
+client.storage
+.from("cars")
+.getPublicUrl(fileName);
+
+imageUrl = data.publicUrl;
+
+}
 const { data:{ user } } =
 await client.auth.getUser();
 
@@ -562,8 +582,8 @@ make,
 model,
 year,
 mileage,
-user_id:user.id
-
+user_id:user.id,
+image_url:imageUrl
 }]);
 
 await client
