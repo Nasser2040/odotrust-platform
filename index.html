@@ -546,8 +546,7 @@ const fileExt =
 imageFile.name.split(".").pop();
 
 const fileName =
-Date.now() + "." + fileExt;
-
+"public/" + Date.now() + "." + fileExt;
 await client.storage
 .from("cars")
 .upload(fileName,imageFile);
