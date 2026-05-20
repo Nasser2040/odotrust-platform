@@ -542,8 +542,11 @@ document.getElementById("message");
 
 if(imageFile){
 
+const fileExt =
+imageFile.name.split(".").pop();
+
 const fileName =
-Date.now() + "-" + imageFile.name;
+Date.now() + "." + fileExt;
 
 await client.storage
 .from("cars")
