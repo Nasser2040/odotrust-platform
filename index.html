@@ -430,8 +430,9 @@
 
     if(error || !cars || cars.length === 0) return null;
 
-    const car = cars.find(c => c.make && c.model && Number(c.mileage) > 0) || cars[0];
-
+const car = cars
+  .filter(c => c.make && c.model && Number(c.mileage) > 0)
+  .sort((a,b) => Number(b.mileage) - Number(a.mileage))[0] || cars[0];
     const { data: historyData } = await client
       .from("mileage_history")
       .select("*")
