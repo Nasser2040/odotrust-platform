@@ -1,948 +1,688 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdoTrust | عداد موثوق</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-<title>OdoTrust | عداد موثوق</title>
+  <style>
+    *{ box-sizing:border-box; }
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    body{
+      margin:0;
+      font-family:Arial, Tahoma, sans-serif;
+      background:#020617;
+      color:white;
+    }
 
-<style>
- .hero{
-  position:relative;
-  text-align:center;
-  padding:90px 20px;
-  overflow:hidden;
-  background:
-  linear-gradient(
-    135deg,
-    #020617,
-    #0f172a,
-    #0f766e
-  );
-}
+    .hero{
+      position:relative;
+      text-align:center;
+      padding:90px 20px;
+      overflow:hidden;
+      background:linear-gradient(135deg,#020617,#0f172a,#0f766e);
+      border-bottom:3px solid #38bdf8;
+    }
 
-.overlay{
-  position:absolute;
-  inset:0;
-  background:
-  radial-gradient(
-    circle at top,
-    rgba(56,189,248,.15),
-    transparent 60%
-  );
-}
+    .overlay{
+      position:absolute;
+      inset:0;
+      background:radial-gradient(circle at top,rgba(56,189,248,.15),transparent 60%);
+    }
 
-.hero-content{
-  position:relative;
-  z-index:2;
-}
+    .hero-content{
+      position:relative;
+      z-index:2;
+    }
 
-.logo{
-  width:150px;
-  margin-bottom:20px;
-  filter:
-  drop-shadow(0 0 20px rgba(56,189,248,.5));
-}
+    .logo{
+      width:145px;
+      margin-bottom:18px;
+      filter:drop-shadow(0 0 20px rgba(56,189,248,.5));
+    }
 
-.hero h1{
-  font-size:55px;
-  margin:0;
-  color:#38bdf8;
-}
+    .hero h1{
+      font-size:55px;
+      margin:0;
+      color:#38bdf8;
+    }
 
-.hero h3{
-  font-size:28px;
-  color:white;
-  margin-top:15px;
-}
+    .hero h3{
+      font-size:28px;
+      color:white;
+      margin-top:15px;
+    }
 
-.hero p{
-  color:#cbd5e1;
-  font-size:18px;
-  max-width:700px;
-  margin:20px auto;
-  line-height:1.8;
-}
+    .hero p{
+      color:#cbd5e1;
+      font-size:18px;
+      max-width:700px;
+      margin:20px auto;
+      line-height:1.8;
+    }
 
-.hero-btn{
-  width:auto;
-  padding:16px 35px;
-  background:#38bdf8;
-  color:#020617;
-  font-size:18px;
-  border-radius:16px;
-  border:none;
-  cursor:pointer;
-  transition:.3s;
-  font-weight:bold;
-}
+    .hero-btn{
+      width:auto;
+      padding:16px 35px;
+      background:#38bdf8;
+      color:#020617;
+      font-size:18px;
+      border-radius:16px;
+      border:none;
+      cursor:pointer;
+      transition:.3s;
+      font-weight:bold;
+    }
 
-.hero-btn:hover{
-  transform:scale(1.05);
-  background:white;
-} 
+    .hero-btn:hover{
+      transform:scale(1.05);
+      background:white;
+    }
 
-*{
-  box-sizing:border-box;
-}
+    .container{
+      max-width:950px;
+      margin:auto;
+      padding:25px;
+    }
 
-body{
-  margin:0;
-  font-family:Arial;
-  background:#020617;
-  color:white;
-}
+    .card{
+      position:relative;
+      background:rgba(15,23,42,.75);
+      backdrop-filter:blur(18px);
+      border:1px solid rgba(255,255,255,.08);
+      padding:30px;
+      border-radius:28px;
+      margin-bottom:30px;
+      box-shadow:0 10px 40px rgba(0,0,0,.35);
+      overflow:hidden;
+      transition:.35s;
+    }
 
-header{
-  background:linear-gradient(135deg,#020617,#0f766e);
-  padding:45px;
-  text-align:center;
-  border-bottom:3px solid #38bdf8;
-}
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg,rgba(56,189,248,.08),transparent);
+      pointer-events:none;
+    }
 
-.logo{
-  width:140px;
-  margin-bottom:15px;
-}
+    .card:hover{
+      transform:translateY(-6px);
+      border-color:rgba(56,189,248,.4);
+      box-shadow:0 20px 60px rgba(56,189,248,.15);
+    }
 
-.container{
-  max-width:950px;
-  margin:auto;
-  padding:25px;
-}
-.card{
-  position:relative;
-  background:
-  rgba(15,23,42,.75);
+    h1,h2{
+      color:#38bdf8;
+      text-align:center;
+    }
 
-  backdrop-filter:
-  blur(18px);
+    input,button{
+      width:100%;
+      padding:15px;
+      margin-top:12px;
+      border:none;
+      border-radius:12px;
+      font-size:16px;
+    }
 
-  border:
-  1px solid rgba(255,255,255,.08);
+    input{
+      background:#1e293b;
+      color:white;
+    }
 
-  padding:30px;
+    button{
+      background:#0f766e;
+      color:white;
+      cursor:pointer;
+      font-weight:bold;
+    }
 
-  border-radius:28px;
+    button:hover{
+      background:#14b8a6;
+    }
 
-  margin-bottom:30px;
+    .info-card{
+      background:linear-gradient(135deg,rgba(15,23,42,.95),rgba(30,41,59,.9));
+      border:1px solid rgba(56,189,248,.15);
+      border-radius:24px;
+      padding:24px;
+      margin-top:20px;
+      transition:.35s;
+      box-shadow:0 10px 35px rgba(0,0,0,.25);
+    }
 
-  box-shadow:
-  0 10px 40px rgba(0,0,0,.35);
+    .info-card:hover{
+      transform:translateY(-5px);
+      border-color:rgba(56,189,248,.4);
+      box-shadow:0 18px 55px rgba(56,189,248,.18);
+    }
 
-  overflow:hidden;
+    .warning{
+      background:#7f1d1d;
+      color:#fecaca;
+      padding:15px;
+      border-radius:12px;
+      text-align:center;
+      margin-top:15px;
+      font-weight:bold;
+    }
 
-  transition:.35s;
-}
+    .safe{
+      background:#14532d;
+      color:#bbf7d0;
+      padding:15px;
+      border-radius:12px;
+      text-align:center;
+      margin-top:15px;
+      font-weight:bold;
+    }
 
-.card::before{
-  content:"";
+    .medium{
+      background:#713f12;
+      color:#fef3c7;
+      padding:15px;
+      border-radius:12px;
+      text-align:center;
+      margin-top:15px;
+      font-weight:bold;
+    }
 
-  position:absolute;
+    #message,
+    #authMessage{
+      text-align:center;
+      font-weight:bold;
+      margin-top:15px;
+    }
 
-  inset:0;
-
-  background:
-  linear-gradient(
-    135deg,
-    rgba(56,189,248,.08),
-    transparent
-  );
-
-  pointer-events:none;
-}
-
-.card:hover{
-
-  transform:
-  translateY(-6px);
-
-  border-color:
-  rgba(56,189,248,.4);
-
-  box-shadow:
-  0 20px 60px rgba(56,189,248,.15);
-
-}
-
-}
-
-h1,h2{
-  color:#38bdf8;
-  text-align:center;
-}
-
-input,button{
-  width:100%;
-  padding:15px;
-  margin-top:12px;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-}
-
-input{
-  background:#1e293b;
-  color:white;
-}
-
-button{
-  background:#0f766e;
-  color:white;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-button:hover{
-  background:#14b8a6;
-}
-.info-card{
-  background:
-  linear-gradient(
-    135deg,
-    rgba(15,23,42,.95),
-    rgba(30,41,59,.9)
-  );
-
-  border:
-  1px solid rgba(56,189,248,.15);
-
-  border-radius:24px;
-
-  padding:24px;
-
-  margin-top:20px;
-
-  transition:.35s;
-
-  box-shadow:
-  0 10px 35px rgba(0,0,0,.25);
-}
-
-.info-card:hover{
-
-  transform:
-  translateY(-5px);
-
-  border-color:
-  rgba(56,189,248,.4);
-
-  box-shadow:
-  0 18px 55px rgba(56,189,248,.18);
-
-}
-}
-
-.warning{
-  background:#7f1d1d;
-  color:#fecaca;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-  margin-top:15px;
-}
-
-.safe{
-  background:#14532d;
-  color:#bbf7d0;
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-  margin-top:15px;
-}
-
-#message,
-#authMessage{
-  text-align:center;
-  font-weight:bold;
-  margin-top:15px;
-}
-
-footer{
-  text-align:center;
-  color:#94a3b8;
-  padding:25px;
-}
-
-</style>
+    footer{
+      text-align:center;
+      color:#94a3b8;
+      padding:25px;
+    }
+  </style>
 </head>
 
 <body>
 
 <header class="hero">
-
-<div class="overlay"></div>
-
-<div class="hero-content">
-
-<img src="logo.png" class="logo">
-
-<h1>
-🚗 OdoTrust
-</h1>
-
-<h3>
-عداد موثوق لفحص المركبات وكشف التلاعب بالعداد
-</h3>
-
-<p>
-منصة ذكية تساعدك على معرفة تاريخ المركبة الحقيقي قبل الشراء
-</p>
-
-<button class="hero-btn">
-ابدأ الفحص الآن
-</button>
-
-</div>
-
+  <div class="overlay"></div>
+  <div class="hero-content">
+    <img src="logo.png" class="logo" alt="OdoTrust Logo">
+    <h1>🚗 OdoTrust</h1>
+    <h3>عداد موثوق لفحص المركبات وكشف التلاعب بالعداد</h3>
+    <p>منصة ذكية تساعدك على معرفة تاريخ المركبة الحقيقي قبل الشراء</p>
+    <button class="hero-btn" onclick="document.getElementById('searchSection').scrollIntoView({behavior:'smooth'})">ابدأ الفحص الآن</button>
+  </div>
 </header>
 
 <div class="container">
 
-<div class="card">
+  <div class="card">
+    <h2>تسجيل الدخول</h2>
+    <input id="email" placeholder="البريد الإلكتروني أو رقم الجوال">
+    <input id="password" type="password" placeholder="كلمة المرور">
+    <button onclick="signUp()">إنشاء حساب</button>
+    <button onclick="signIn()">تسجيل دخول</button>
+    <button onclick="logout()">تسجيل خروج</button>
+    <p id="authMessage"></p>
+  </div>
 
-<h2>تسجيل الدخول</h2>
+  <div class="card">
+    <h2>إضافة مركبة</h2>
+    <input id="vin" placeholder="رقم الشاصي VIN">
+    <input id="make" placeholder="الشركة">
+    <input id="model" placeholder="الموديل">
+    <input id="year" type="number" placeholder="السنة">
+    <input id="mileage" type="number" placeholder="العداد">
+    <input id="image" type="file" accept="image/*">
+    <button onclick="saveVehicle()">حفظ المركبة</button>
+    <p id="message"></p>
+  </div>
 
-<input id="email" placeholder="البريد الإلكتروني أو رقم الجوال">
+  <div class="card" id="searchSection">
+    <h2>البحث عن مركبة</h2>
+    <input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
+    <button onclick="searchVehicle()">بحث عن المركبة</button>
+    <div id="result"></div>
+    <button onclick="downloadPDF()">تحميل تقرير PDF</button>
+  </div>
 
-<input id="password" type="password" placeholder="كلمة المرور">
-
-<button onclick="signUp()">
-إنشاء حساب
-</button>
-
-<button onclick="signIn()">
-تسجيل دخول
-</button>
-
-<button onclick="logout()">
-تسجيل خروج
-</button>
-
-<p id="authMessage"></p>
-
-</div>
-
-<div class="card">
-
-<h2>إضافة مركبة</h2>
-
-<input id="vin" placeholder="رقم الشاصي VIN">
-
-<input id="make" placeholder="الشركة">
-
-<input id="model" placeholder="الموديل">
-
-<input id="year" type="number" placeholder="السنة">
-
-<input id="mileage" type="number" placeholder="العداد">
-<input
-id="image"
-type="file"
-accept="image/*">
-<button onclick="saveVehicle()">
-حفظ المركبة
-</button>
-
-<p id="message"></p>
+  <div class="card">
+    <h2>لوحة المستخدم</h2>
+    <p id="userStatus">❌ لا يوجد مستخدم مسجل دخول</p>
+    <div id="savedCars">لا توجد مركبات</div>
+  </div>
 
 </div>
 
-<div class="card">
-
-<h2>البحث عن مركبة</h2>
-
-<input id="searchVin" placeholder="أدخل رقم الشاصي VIN">
-
-<button onclick="searchVehicle()">
-بحث عن المركبة
-</button>
-
-<div id="result"></div>
-
-<button onclick="downloadPDF()">
-تحميل تقرير PDF
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>لوحة المستخدم</h2>
-
-<p id="userStatus">
-❌ لا يوجد مستخدم مسجل دخول
-</p>
-
-<div id="savedCars">
-لا توجد مركبات
-</div>
-
-</div>
-
-</div>
-
-<footer>
-© 2026 OdoTrust
-</footer>
+<footer>© 2026 OdoTrust</footer>
 
 <script>
-
-const SUPABASE_URL =
-"https://fufghmrctxaiwnchgatp.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
-
-const client =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-function normalizeLogin(value){
-
-value = value.trim();
-
-if(!value.includes("@")){
-
-return value + "@odotrust.local";
-
-}
-
-return value;
-
-}
-
-async function signUp(){
-
-const email =
-normalizeLogin(
-document.getElementById("email").value
-);
-
-const password =
-document.getElementById("password").value;
-
-const authMessage =
-document.getElementById("authMessage");
-
-const { error } =
-await client.auth.signUp({
-
-email,
-password
-
-});
-
-if(error){
-
-authMessage.innerText =
-error.message;
-
-authMessage.style.color =
-"#f87171";
-
-}else{
-
-authMessage.innerText =
-"تم إنشاء الحساب ✅";
-
-authMessage.style.color =
-"#4ade80";
-
-}
-
-}
-
-async function signIn(){
-
-const email =
-normalizeLogin(
-document.getElementById("email").value
-);
-
-const password =
-document.getElementById("password").value;
-
-const authMessage =
-document.getElementById("authMessage");
-
-const { error } =
-await client.auth.signInWithPassword({
-
-email,
-password
-
-});
-
-if(error){
-
-authMessage.innerText =
-error.message;
-
-authMessage.style.color =
-"#f87171";
-
-}else{
-
-authMessage.innerText =
-"تم تسجيل الدخول ✅";
-
-authMessage.style.color =
-"#4ade80";
-
-checkUser();
-
-}
-
-}
-
-async function logout(){
-
-await client.auth.signOut();
-
-document.getElementById("authMessage")
-.innerText =
-"تم تسجيل الخروج 👋";
-
-checkUser();
-
-}
-
-async function saveVehicle(){
-
-const vin =
-document.getElementById("vin").value.trim();
-
-const make =
-document.getElementById("make").value.trim();
-
-const model =
-document.getElementById("model").value.trim();
-const imageFile =
-document.getElementById("image").files[0];
-const year =
-Number(
-document.getElementById("year").value
-);
-
-const mileage =
-Number(
-document.getElementById("mileage").value
-);
-
-const message =
-document.getElementById("message");
-
- let imageUrl = "";
-
-if(imageFile){
-
-const fileExt =
-imageFile.name.split(".").pop();
-
-const fileName =
-"public/" + Date.now() + "." + fileExt;
-await client.storage
-.from("cars")
-.upload(fileName,imageFile);
-
-const { data } =
-client.storage
-.from("cars")
-.getPublicUrl(fileName);
-
-imageUrl = data.publicUrl;
-
-}
-const { data:{ user } } =
-await client.auth.getUser();
-
-if(!user){
-
-message.innerText =
-"يجب تسجيل الدخول أولاً";
-
-message.style.color =
-"#f87171";
-
-return;
-
-}
-
-const { error } =
-await client
-.from("vehicles")
-.insert([{
-
-vin,
-make,
-model,
-year,
-mileage,
-user_id:user.id,
-image_url:imageUrl
-}]);
-
-await client
-.from("mileage_history")
-.insert([{
-
-vin,
-mileage
-
-}]);
-
-if(error){
-
-message.innerText =
-error.message;
-
-message.style.color =
-"#f87171";
-
-}else{
-
-message.innerText =
-"تم حفظ المركبة ✅";
-
-message.style.color =
-"#4ade80";
-
-checkUser();
-
-}
-
-}
-
-async function searchVehicle(){
-
-const searchVin =
-document.getElementById("searchVin")
-.value.trim();
-
-const result =
-document.getElementById("result");
-
-const { data,error } =
-await client
-.from("vehicles")
-.select("*")
-.eq("vin",searchVin)
-.limit(1);
-
-if(error || !data || data.length===0){
-
-result.innerHTML =
-"لا توجد مركبة";
-
-return;
-
-}
-
-const car = data[0];
-
-const { data: historyData } =
-await client
-.from("mileage_history")
-.select("*")
-.eq("vin",searchVin)
-.order("created_at",{ascending:false});
-
-const readings =
-(historyData || [])
-.map(x=>Number(x.mileage))
-.filter(x=>x>0);
-
-let tampering = false;
-
-for(let i=0;i<readings.length-1;i++){
-
-const difference =
-Math.abs(
-readings[i] - readings[i+1]
-);
-
-if(difference > 1000){
-
-tampering = true;
-
-}
-
-}
-
-let historyHtml =
-"<h3>سجل العدادات</h3>";
-
-(historyData || []).forEach(item=>{
-
-historyHtml +=
-`<p>${item.mileage} كم</p>`;
-
-});
-
-result.innerHTML = `
-
-<div class="info-card">
-
-<h2>🚗 نتيجة الفحص</h2>
-
-<p>VIN: ${car.vin}</p>
-
-<p>الشركة: ${car.make}</p>
-
-<p>الموديل: ${car.model}</p>
-
-<p>السنة: ${car.year}</p>
-
-<p>العداد: ${car.mileage} كم</p>
-
-${historyHtml}
-
-${tampering ?
-
-'<div class="warning">⚠️ يوجد اشتباه تلاعب بالعداد</div>'
-
-:
-
-'<div class="safe">✅ لا يوجد اشتباه واضح</div>'
-
-}
-
-</div>
-
-`;
-
-}
-
-async function downloadPDF(){
-
-const vin =
-document.getElementById("searchVin")
-.value.trim();
-
-const { data } =
-await client
-.from("vehicles")
-.select("*")
-.eq("vin",vin)
-.limit(1);
-
-if(!data || data.length===0){
-
-alert("ابحث عن مركبة أولاً");
-
-return;
-
-}
-
-const car = data[0];
-
-const { data: historyData } =
-await client
-.from("mileage_history")
-.select("*")
-.eq("vin",vin)
-.order("created_at",{ascending:false});
-
-const readings =
-(historyData || [])
-.map(x=>Number(x.mileage))
-.filter(x=>x>0);
-
-let tampering = false;
-
-for(let i=0;i<readings.length-1;i++){
-
-const difference =
-Math.abs(
-readings[i] - readings[i+1]
-);
-
-if(difference > 1000){
-
-tampering = true;
-
-}
-
-}
-
-const w =
-window.open("","_blank");
-
-w.document.write(`
-
-<html>
-<head><title>OdoTrust_Report</title></head>
-<body style="font-family:Arial;padding:40px;">
-
-<center>
-
-<img src="logo.png" width="120">
-
-<h1>OdoTrust Vehicle Report</h1>
-
-</center>
-
-<hr>
-
-<h3>VIN: ${car.vin}</h3>
-
-<h3>Make: ${car.make}</h3>
-
-<h3>Model: ${car.model}</h3>
-
-<h3>Year: ${car.year}</h3>
-
-<h3>Mileage: ${car.mileage} KM</h3>
-
-${tampering ?
-
-'<h2 style="color:#b91c1c;">Status: Odometer Tampering Suspected</h2>'
-
-:
-
-'<h2 style="color:#15803d;">Status: No Clear Tampering Detected</h2>'
-
-}
-
-</body>
-
-</html>
-
-`);
-
-w.document.title = "OdoTrust_Report";
-w.focus();
-w.print();
-}
-
-async function editCar(id){
-
-const newMileage =
-prompt("أدخل العداد الجديد");
-
-if(!newMileage) return;
-
-await client
-.from("vehicles")
-.update({
-
-mileage:Number(newMileage)
-
-})
-.eq("id",id);
-
-checkUser();
-
-}
-
-async function deleteCar(id){
-
-const ok =
-confirm("هل تريد حذف المركبة؟");
-
-if(!ok) return;
-
-await client
-.from("vehicles")
-.delete()
-.eq("id",id);
-
-checkUser();
-
-}
-
-async function checkUser(){
-
-const { data:{ user } } =
-await client.auth.getUser();
-
-const userStatus =
-document.getElementById("userStatus");
-
-const savedCars =
-document.getElementById("savedCars");
-
-if(!user){
-
-userStatus.innerHTML =
-"❌ لا يوجد مستخدم مسجل دخول";
-
-savedCars.innerHTML =
-"لا توجد مركبات";
-
-return;
-
-}
-
-userStatus.innerHTML =
-"✅ مسجل دخول: " + user.email;
-
-const { data: cars } =
-await client
-.from("vehicles")
-.select("*")
-.eq("user_id",user.id)
-.order("id",{ascending:false});
-
-if(!cars || cars.length===0){
-
-savedCars.innerHTML =
-"لا توجد مركبات";
-
-return;
-
-}
-
-let html = "";
-
-cars.forEach(car=>{
-
-html += `
-
-<div class="info-card">
-<img
-<img
-src="${car.image_url || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop'}"style="
-width:100%;
-height:220px;
-object-fit:cover;
-border-radius:18px;
-margin-bottom:15px;
-">
-<p>🚗 ${car.make} ${car.model}</p>
-
-<p>📅 ${car.year}</p>
-
-<p>📍 ${car.vin}</p>
-
-<p>📊 ${car.mileage} كم</p>
-
-<button onclick="editCar(${car.id})">
-تعديل المركبة
-</button>
-
-<button onclick="deleteCar(${car.id})">
-حذف المركبة
-</button>
-
-</div>
-
-`;
-
-});
-
-savedCars.innerHTML = html;
-
-}
-
-checkUser();
-
+  const SUPABASE_URL = "https://fufghmrctxaiwnchgatp.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_VMe1tBu15thlUKhijxGeiA_M_6rX4fV";
+
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function normalizeLogin(value){
+    value = value.trim();
+    if(!value.includes("@")) return value + "@odotrust.local";
+    return value;
+  }
+
+  function cleanVin(value){
+    return value.trim().toUpperCase();
+  }
+
+  function analyzeMileage(car, historyData){
+    const currentMileage = Number(car.mileage || car.current_mileage || 0);
+    const readings = (historyData || [])
+      .map(x => Number(x.mileage))
+      .filter(x => x > 0);
+
+    let mileageDrop = false;
+
+    for(let i = 1; i < readings.length; i++){
+      if(readings[i] < readings[i - 1]) mileageDrop = true;
+    }
+
+    if(readings.length > 0){
+      const maxHistory = Math.max(...readings);
+      if(currentMileage > 0 && currentMileage < maxHistory) mileageDrop = true;
+    }
+
+    let riskLevel = "unknown";
+    let riskScore = 30;
+    let statusText = "البيانات غير كافية لإصدار حكم واضح";
+    let statusClass = "medium";
+
+    if(mileageDrop){
+      riskLevel = "high";
+      riskScore = 90;
+      statusText = "يوجد اشتباه تلاعب بالعداد";
+      statusClass = "warning";
+    }else if(readings.length <= 1){
+      riskLevel = "medium";
+      riskScore = 40;
+      statusText = "البيانات محدودة وتحتاج إلى قراءات إضافية";
+      statusClass = "medium";
+    }else{
+      riskLevel = "low";
+      riskScore = 10;
+      statusText = "لا يوجد اشتباه واضح في التلاعب";
+      statusClass = "safe";
+    }
+
+    return { readings, riskLevel, riskScore, statusText, statusClass };
+  }
+
+  async function signUp(){
+    const email = normalizeLogin(document.getElementById("email").value);
+    const password = document.getElementById("password").value;
+    const authMessage = document.getElementById("authMessage");
+
+    const { error } = await client.auth.signUp({ email, password });
+
+    if(error){
+      authMessage.innerText = error.message;
+      authMessage.style.color = "#f87171";
+    }else{
+      authMessage.innerText = "تم إنشاء الحساب ✅";
+      authMessage.style.color = "#4ade80";
+    }
+  }
+
+  async function signIn(){
+    const email = normalizeLogin(document.getElementById("email").value);
+    const password = document.getElementById("password").value;
+    const authMessage = document.getElementById("authMessage");
+
+    const { error } = await client.auth.signInWithPassword({ email, password });
+
+    if(error){
+      authMessage.innerText = error.message;
+      authMessage.style.color = "#f87171";
+    }else{
+      authMessage.innerText = "تم تسجيل الدخول ✅";
+      authMessage.style.color = "#4ade80";
+      checkUser();
+    }
+  }
+
+  async function logout(){
+    await client.auth.signOut();
+    document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
+    checkUser();
+  }
+
+  async function saveVehicle(){
+    const vin = cleanVin(document.getElementById("vin").value);
+    const make = document.getElementById("make").value.trim();
+    const model = document.getElementById("model").value.trim();
+    const year = Number(document.getElementById("year").value);
+    const mileage = Number(document.getElementById("mileage").value);
+    const imageFile = document.getElementById("image").files[0];
+    const message = document.getElementById("message");
+
+    if(!vin || vin.length < 8 || !make || !model || !year || !mileage){
+      message.innerText = "أكمل بيانات المركبة أولاً";
+      message.style.color = "#f87171";
+      return;
+    }
+
+    const { data:{ user } } = await client.auth.getUser();
+
+    if(!user){
+      message.innerText = "يجب تسجيل الدخول أولاً";
+      message.style.color = "#f87171";
+      return;
+    }
+
+    let imageUrl = "";
+
+    if(imageFile){
+      try{
+        const fileExt = imageFile.name.split(".").pop();
+        const fileName = "public/" + Date.now() + "." + fileExt;
+        await client.storage.from("cars").upload(fileName, imageFile);
+        const { data } = client.storage.from("cars").getPublicUrl(fileName);
+        imageUrl = data.publicUrl;
+      }catch(e){
+        imageUrl = "";
+      }
+    }
+
+    const { error } = await client.from("vehicles").insert([{
+      vin,
+      make,
+      model,
+      year,
+      mileage,
+      user_id:user.id,
+      image_url:imageUrl
+    }]);
+
+    await client.from("mileage_history").insert([{
+      vin,
+      mileage,
+      inspection_date:new Date().toISOString().slice(0,10),
+      source:"manual"
+    }]);
+
+    if(error){
+      message.innerText = error.message;
+      message.style.color = "#f87171";
+    }else{
+      message.innerText = "تم حفظ المركبة ✅";
+      message.style.color = "#4ade80";
+      checkUser();
+    }
+  }
+
+  async function getCarAndHistory(vin){
+    const { data: cars, error } = await client
+      .from("vehicles")
+      .select("*")
+      .eq("vin", vin)
+      .order("created_at", { ascending:false })
+      .limit(20);
+
+    if(error || !cars || cars.length === 0) return null;
+
+    const car = cars.find(c => c.make && c.model && Number(c.mileage) > 0) || cars[0];
+
+    const { data: historyData } = await client
+      .from("mileage_history")
+      .select("*")
+      .eq("vin", vin)
+      .order("created_at", { ascending:true });
+
+    return { car, historyData: historyData || [] };
+  }
+
+  async function searchVehicle(){
+    const searchVin = cleanVin(document.getElementById("searchVin").value);
+    const result = document.getElementById("result");
+
+    if(!searchVin){
+      result.innerHTML = "أدخل رقم الشاصي أولاً";
+      return;
+    }
+
+    const found = await getCarAndHistory(searchVin);
+
+    if(!found){
+      result.innerHTML = "لا توجد مركبة";
+      return;
+    }
+
+    const { car, historyData } = found;
+    const analysis = analyzeMileage(car, historyData);
+
+    let historyHtml = "<h3>سجل العدادات</h3>";
+
+    const validHistory = historyData.filter(item => Number(item.mileage) > 0);
+
+    if(validHistory.length === 0){
+      historyHtml += "<p>لا توجد قراءات عداد سابقة</p>";
+    }else{
+      validHistory.forEach(item => {
+        historyHtml += `<p>${Number(item.mileage).toLocaleString()} كم</p>`;
+      });
+    }
+
+    result.innerHTML = `
+      <div class="info-card">
+        <h2>🚗 نتيجة الفحص</h2>
+        <p><strong>رقم الهيكل VIN:</strong> ${car.vin}</p>
+        <p><strong>الشركة:</strong> ${car.make || "غير محدد"}</p>
+        <p><strong>الموديل:</strong> ${car.model || "غير محدد"}</p>
+        <p><strong>السنة:</strong> ${car.year || "غير محدد"}</p>
+        <p><strong>العداد الحالي:</strong> ${Number(car.mileage || 0).toLocaleString()} كم</p>
+        <p><strong>درجة الخطورة:</strong> ${analysis.riskScore} / 100</p>
+        ${historyHtml}
+        <div class="${analysis.statusClass}">${analysis.statusText}</div>
+      </div>
+    `;
+  }
+
+  async function downloadPDF(){
+    const vin = cleanVin(document.getElementById("searchVin").value);
+
+    if(!vin){
+      alert("أدخل رقم الشاصي أولاً");
+      return;
+    }
+
+    const found = await getCarAndHistory(vin);
+
+    if(!found){
+      alert("ابحث عن مركبة أولاً");
+      return;
+    }
+
+    const { car, historyData } = found;
+    const analysis = analyzeMileage(car, historyData);
+    const validHistory = historyData.filter(item => Number(item.mileage) > 0);
+
+    const historyRows = validHistory.length === 0
+      ? "<tr><td colspan='2'>لا توجد قراءات سابقة</td></tr>"
+      : validHistory.map((item, index) => `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${Number(item.mileage).toLocaleString()} كم</td>
+          </tr>
+        `).join("");
+
+    const statusColor = analysis.riskLevel === "high" ? "#b91c1c" : analysis.riskLevel === "low" ? "#15803d" : "#b45309";
+
+    const w = window.open("", "_blank");
+
+    w.document.write(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8">
+        <title>OdoTrust_Report</title>
+        <style>
+          body{
+            font-family:Arial, Tahoma, sans-serif;
+            padding:40px;
+            color:#0f172a;
+            direction:rtl;
+          }
+          .header{
+            text-align:center;
+            border-bottom:3px solid #0f766e;
+            padding-bottom:20px;
+            margin-bottom:25px;
+          }
+          .logo{ width:110px; }
+          h1{ color:#0f766e; margin-bottom:5px; }
+          .box{
+            border:1px solid #cbd5e1;
+            border-radius:14px;
+            padding:18px;
+            margin:18px 0;
+            background:#f8fafc;
+          }
+          .status{
+            color:white;
+            background:${statusColor};
+            padding:16px;
+            border-radius:12px;
+            text-align:center;
+            font-size:22px;
+            font-weight:bold;
+          }
+          table{
+            width:100%;
+            border-collapse:collapse;
+            margin-top:10px;
+          }
+          td,th{
+            border:1px solid #cbd5e1;
+            padding:10px;
+            text-align:center;
+          }
+          th{ background:#e2e8f0; }
+          .note{
+            color:#475569;
+            font-size:14px;
+            line-height:1.8;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <img src="logo.png" class="logo">
+          <h1>تقرير فحص المركبة - OdoTrust</h1>
+          <p>عداد موثوق لفحص المركبات وكشف مؤشرات التلاعب بالعداد</p>
+        </div>
+
+        <div class="box">
+          <h2>بيانات المركبة</h2>
+          <p><strong>رقم الهيكل VIN:</strong> ${car.vin}</p>
+          <p><strong>الشركة:</strong> ${car.make || "غير محدد"}</p>
+          <p><strong>الموديل:</strong> ${car.model || "غير محدد"}</p>
+          <p><strong>السنة:</strong> ${car.year || "غير محدد"}</p>
+          <p><strong>العداد الحالي:</strong> ${Number(car.mileage || 0).toLocaleString()} كم</p>
+        </div>
+
+        <div class="box">
+          <h2>نتيجة الفحص</h2>
+          <div class="status">${analysis.statusText}</div>
+          <p><strong>درجة الخطورة:</strong> ${analysis.riskScore} / 100</p>
+        </div>
+
+        <div class="box">
+          <h2>سجل قراءات العداد</h2>
+          <table>
+            <thead>
+              <tr><th>#</th><th>قراءة العداد</th></tr>
+            </thead>
+            <tbody>${historyRows}</tbody>
+          </table>
+        </div>
+
+        <p class="note">
+          ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
+        </p>
+      </body>
+      </html>
+    `);
+
+    w.document.close();
+    w.document.title = "OdoTrust_Report";
+    w.focus();
+    setTimeout(() => w.print(), 500);
+  }
+
+  async function editCar(id){
+    const newMileage = prompt("أدخل العداد الجديد");
+    if(!newMileage) return;
+
+    await client.from("vehicles").update({ mileage:Number(newMileage) }).eq("id", id);
+    checkUser();
+  }
+
+  async function deleteCar(id){
+    const ok = confirm("هل تريد حذف المركبة؟");
+    if(!ok) return;
+
+    await client.from("vehicles").delete().eq("id", id);
+    checkUser();
+  }
+
+  async function checkUser(){
+    const { data:{ user } } = await client.auth.getUser();
+    const userStatus = document.getElementById("userStatus");
+    const savedCars = document.getElementById("savedCars");
+
+    if(!user){
+      userStatus.innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
+      savedCars.innerHTML = "لا توجد مركبات";
+      return;
+    }
+
+    userStatus.innerHTML = "✅ مسجل دخول: " + user.email;
+
+    const { data: cars } = await client
+      .from("vehicles")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("id", { ascending:false });
+
+    if(!cars || cars.length === 0){
+      savedCars.innerHTML = "لا توجد مركبات";
+      return;
+    }
+
+    let html = "";
+
+    cars.forEach(car => {
+      html += `
+        <div class="info-card">
+          <img
+            src="${car.image_url || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop'}"
+            style="width:100%;height:220px;object-fit:cover;border-radius:18px;margin-bottom:15px;"
+            alt="صورة المركبة"
+          >
+          <p>🚗 ${car.make || ""} ${car.model || ""}</p>
+          <p>📅 ${car.year || "غير محدد"}</p>
+          <p>📍 ${car.vin || "غير محدد"}</p>
+          <p>📊 ${Number(car.mileage || 0).toLocaleString()} كم</p>
+          <button onclick="editCar(${car.id})">تعديل المركبة</button>
+          <button onclick="deleteCar(${car.id})">حذف المركبة</button>
+        </div>
+      `;
+    });
+
+    savedCars.innerHTML = html;
+  }
+
+  checkUser();
 </script>
 
 </body>
