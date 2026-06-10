@@ -757,19 +757,12 @@ td,th{
 </div>
 
 <div class="box">
-  <h2>سجل قراءات العداد</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>قراءة العداد</th>
-        <th>التاريخ</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${historyRows}
-    </tbody>
-  </table>
+  <h2>ملخص قراءات العداد</h2>
+  <div class="score">
+    <div>عدد القراءات<br>${validHistory.length}</div>
+    <div>أعلى قراءة<br>${maxMileage.toLocaleString()} كم</div>
+    <div>أقل قراءة<br>${minMileage.toLocaleString()} كم</div>
+  </div>
 </div>
 
 <p class="note">
