@@ -503,123 +503,292 @@ const car = cars
       return;
     }
 
-    const { car, historyData } = found;
-    const analysis = analyzeMileage(car, historyData);
-    const validHistory = historyData.filter(item => Number(item.mileage) > 0);
+ const { car, historyData } = found;
+const analysis = analyzeMileage(car, historyData);
+const validHistory = (historyData || []).filter(item => Number(item.mileage) > 0);
 
-    const historyRows = validHistory.length === 0
-      ? "<tr><td colspan='2'>لا توجد قراءات سابقة</td></tr>"
-      : validHistory.map((item, index) => `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${Number(item.mileage).toLocaleString()} كم</td>
-          </tr>
-        `).join("");
+const mileages = validHistory.map(item => Number(item.mileage));
+const minMileage = mileages.length ? Math.min(...mileages) : Number(car.mileage || 0);
+const maxMileage = mileages.length ? Math.max(...mileages) : Number(car.mileage || 0);
 
-    const statusColor = analysis.riskLevel === "high" ? "#b91c1c" : analysis.riskLevel === "low" ? "#15803d" : "#b45309";
+const riskLabel =
+analysis.riskLevel === "high" ? "مرتفع" :
+analysis.riskLevel === "low" ? "منخفض" :
+"متوسط";
 
-    const w = window.open("", "_blank");
+const statusColor =
+analysis.riskLevel === "high" ? "#b91c1c" :
+analysis.riskLevel === "low" ? "#15803d" :
+"#b45309";
 
-    w.document.write(`
-      <!DOCTYPE html>
-      <html lang="ar" dir="rtl">
-      <head>
-        <meta charset="UTF-8">
-        <title>OdoTrust_Report</title>
-        <style>
-          body{
-            font-family:Arial, Tahoma, sans-serif;
-            padding:40px;
-            color:#0f172a;
-            direction:rtl;
-          }
-          .header{
-            text-align:center;
-            border-bottom:3px solid #0f766e;
-            padding-bottom:20px;
-            margin-bottom:25px;
-          }
-          .logo{ width:110px; }
-          h1{ color:#0f766e; margin-bottom:5px; }
-          .box{
-            border:1px solid #cbd5e1;
-            border-radius:14px;
-            padding:18px;
-            margin:18px 0;
-            background:#f8fafc;
-          }
-          .status{
-            color:white;
-            background:${statusColor};
-            padding:16px;
-            border-radius:12px;
-            text-align:center;
-            font-size:22px;
-            font-weight:bold;
-          }
-          table{
-            width:100%;
-            border-collapse:collapse;
-            margin-top:10px;
-          }
-          td,th{
-            border:1px solid #cbd5e1;
-            padding:10px;
-            text-align:center;
-          }
-          th{ background:#e2e8f0; }
-          .note{
-            color:#475569;
-            font-size:14px;
-            line-height:1.8;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <img src="logo.png" class="logo">
-          <h1>تقرير فحص المركبة - OdoTrust</h1>
-          <p>عداد موثوق لفحص المركبات وكشف مؤشرات التلاعب بالعداد</p>
-        </div>
+const recommendation =
+analysis.riskLevel === "high"
+? "ينصح بعدم إتمام الشراء قبل فحص المركبة والتحقق من سجل الصيانة والفحص الدوري."
+: analysis.riskLevel === "low"
+? "لا توجد مؤشرات واضحة على تلاعب بالعداد حسب البيانات المتوفرة."
+: "ينصح بإضافة قراءات أو سجلات إضافية قبل الاعتماد على النتيجة.";
 
-        <div class="box">
-          <h2>بيانات المركبة</h2>
-          <p><strong>رقم الهيكل VIN:</strong> ${car.vin}</p>
-          <p><strong>الشركة:</strong> ${car.make || "غير محدد"}</p>
-          <p><strong>الموديل:</strong> ${car.model || "غير محدد"}</p>
-          <p><strong>السنة:</strong> ${car.year || "غير محدد"}</p>
-          <p><strong>العداد الحالي:</strong> ${Number(car.mileage || 0).toLocaleString()} كم</p>
-        </div>
+const reportDate =
+new Date().toLocaleDateString("ar-SA-u-ca-gregory");
 
-        <div class="box">
-          <h2>نتيجة الفحص</h2>
-          <div class="status">${analysis.statusText}</div>
-          <p><strong>درجة الخطورة:</strong> ${analysis.riskScore} / 100</p>
-        </div>
+const historyRows = validHistory.length === 0
+? "<tr><td colspan='3'>لا توجد قراءات سابقة</td></tr>"
+: validHistory.map((item, index) => {
+    const dateValue = item.inspection_date || item.created_at;
+    const readingDate = dateValue
+      ? new Date(dateValue).toLocaleDateString("ar-SA-u-ca-gregory")
+      : "غير محدد";
 
-        <div class="box">
-          <h2>سجل قراءات العداد</h2>
-          <table>
-            <thead>
-              <tr><th>#</th><th>قراءة العداد</th></tr>
-            </thead>
-            <tbody>${historyRows}</tbody>
-          </table>
-        </div>
+    return `
+      <tr>
+        <td>${index + 1}</td>
+        <td>${Number(item.mileage).toLocaleString()} كم</td>
+        <td>${readingDate}</td>
+      </tr>
+    `;
+  }).join("");
 
-        <p class="note">
-          ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
-        </p>
-      </body>
-      </html>
-    `);
+const w = window.open("", "_blank");
 
-    w.document.close();
-    w.document.title = "OdoTrust_Report";
-    w.focus();
-    setTimeout(() => w.print(), 500);
-  }
+w.document.write(`
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>OdoTrust_Report</title>
 
+<style>
+@page{
+  size:A4;
+  margin:12mm;
+}
+
+*{
+  -webkit-print-color-adjust:exact !important;
+  print-color-adjust:exact !important;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:Arial, Tahoma, sans-serif;
+  color:#0f172a;
+  background:#ffffff;
+  direction:rtl;
+  margin:0;
+  padding:0;
+}
+
+.header{
+  text-align:center;
+  border-bottom:4px solid #0f766e;
+  padding-bottom:18px;
+  margin-bottom:22px;
+}
+
+.logo{
+  width:105px;
+  margin-bottom:8px;
+}
+
+h1{
+  color:#0f766e;
+  margin:5px 0;
+  font-size:30px;
+}
+
+.subtitle{
+  color:#475569;
+  font-size:14px;
+}
+
+.box{
+  border:1px solid #cbd5e1;
+  border-radius:16px;
+  padding:18px;
+  margin:15px 0;
+  background:#f8fafc;
+}
+
+.box h2{
+  margin-top:0;
+  color:#0f766e;
+  font-size:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.item{
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:12px;
+}
+
+.label{
+  color:#64748b;
+  font-size:13px;
+  margin-bottom:5px;
+}
+
+.value{
+  font-size:17px;
+  font-weight:bold;
+}
+
+.status{
+  background:${statusColor} !important;
+  color:white !important;
+  padding:18px;
+  border-radius:14px;
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:15px;
+}
+
+.score{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.score div{
+  flex:1;
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  background:white;
+}
+
+th{
+  background:#e2e8f0;
+  color:#0f172a;
+}
+
+td,th{
+  border:1px solid #cbd5e1;
+  padding:10px;
+  text-align:center;
+}
+
+.note{
+  color:#475569;
+  font-size:13px;
+  line-height:1.8;
+  margin-top:15px;
+}
+
+.footer{
+  margin-top:25px;
+  text-align:center;
+  color:#64748b;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <img src="logo.png" class="logo">
+  <h1>تقرير فحص المركبة - OdoTrust</h1>
+  <div class="subtitle">عداد موثوق لفحص المركبات وكشف مؤشرات التلاعب بالعداد</div>
+  <div class="subtitle">تاريخ التقرير: ${reportDate}</div>
+</div>
+
+<div class="box">
+  <h2>بيانات المركبة</h2>
+  <div class="grid">
+    <div class="item">
+      <div class="label">رقم الهيكل VIN</div>
+      <div class="value">${car.vin}</div>
+    </div>
+    <div class="item">
+      <div class="label">الشركة</div>
+      <div class="value">${car.make || "غير محدد"}</div>
+    </div>
+    <div class="item">
+      <div class="label">الموديل</div>
+      <div class="value">${car.model || "غير محدد"}</div>
+    </div>
+    <div class="item">
+      <div class="label">السنة</div>
+      <div class="value">${car.year || "غير محدد"}</div>
+    </div>
+    <div class="item">
+      <div class="label">العداد الحالي</div>
+      <div class="value">${Number(car.mileage || 0).toLocaleString()} كم</div>
+    </div>
+    <div class="item">
+      <div class="label">عدد القراءات</div>
+      <div class="value">${validHistory.length}</div>
+    </div>
+  </div>
+</div>
+
+<div class="box">
+  <h2>نتيجة الفحص</h2>
+  <div class="status">${analysis.statusText}</div>
+
+  <div class="score">
+    <div>درجة الخطورة<br>${analysis.riskScore} / 100</div>
+    <div>مستوى الخطورة<br>${riskLabel}</div>
+    <div>أعلى قراءة<br>${maxMileage.toLocaleString()} كم</div>
+    <div>أقل قراءة<br>${minMileage.toLocaleString()} كم</div>
+  </div>
+</div>
+
+<div class="box">
+  <h2>التوصية</h2>
+  <p>${recommendation}</p>
+</div>
+
+<div class="box">
+  <h2>سجل قراءات العداد</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>قراءة العداد</th>
+        <th>التاريخ</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${historyRows}
+    </tbody>
+  </table>
+</div>
+
+<p class="note">
+ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
+</p>
+
+<div class="footer">
+© 2026 OdoTrust - عداد موثوق
+</div>
+
+</body>
+</html>
+`);
+
+w.document.close();
+w.document.title = "OdoTrust_Report";
+w.focus();
+setTimeout(() => w.print(), 700);
+   } 
   async function editCar(id){
     const newMileage = prompt("أدخل العداد الجديد");
     if(!newMileage) return;
