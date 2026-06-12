@@ -180,8 +180,8 @@
     }
 
     .medium{
-      background:#713f12;
-      color:#fef3c7;
+      background:#1e3a8a;
+      color:#dbeafe;
       padding:15px;
       border-radius:12px;
       text-align:center;
@@ -389,7 +389,7 @@
     }else if(readings.length <= 1){
       riskLevel = "medium";
       riskScore = 40;
-      statusText = "البيانات محدودة وتحتاج إلى قراءات إضافية";
+      statusText = "لا يوجد تلاعب مرصود في البيانات المتوفرة";
       statusClass = "medium";
     }else{
       riskLevel = "low";
@@ -620,425 +620,273 @@
       return;
     }
 
-    const found = await getCarAndHistory(vin);
+    const w = window.open("", "_blank");
 
-    if(!found){
-      alert("ابحث عن مركبة أولاً");
+    if(!w){
+      alert("المتصفح منع فتح نافذة التقرير. فعّل النوافذ المنبثقة للموقع ثم جرّب مرة أخرى.");
       return;
     }
 
-    const { car, historyData } = found;
-    const analysis = analyzeMileage(car, historyData);
-
-    const riskLabel =
-      analysis.riskLevel === "high" ? "مرتفع" :
-      analysis.riskLevel === "low" ? "منخفض" :
-      "متوسط";
-
-    const statusColor =
-      analysis.riskLevel === "high" ? "#b91c1c" :
-      analysis.riskLevel === "low" ? "#15803d" :
-      "#b45309";
-
-   const recommendation =
-analysis.riskLevel === "high"
-? "ينصح بعدم الشراء قبل فحص المركبة والتحقق من سجل الصيانة."
-: analysis.riskLevel === "low"
-? "لا توجد مؤشرات واضحة على تلاعب بالعداد."
-: "البيانات محدودة وتحتاج إلى قراءات إضافية.";
-    const graphReadings = analysis.readings.length
-      ? analysis.readings
-      : [analysis.currentMileage || Number(car.mileage || 0)];
-
-    const graphWidth = 780;
-    const graphHeight = 210;
-    const padX = 42;
-    const padTop = 30;
-    const padBottom = 42;
-    const minValue = Math.min(...graphReadings);
-    const maxValue = Math.max(...graphReadings);
-    const range = Math.max(1, maxValue - minValue);
-
-    const points = graphReadings.map((value, index) => {
-      const x = graphReadings.length === 1
-        ? graphWidth / 2
-        : padX + (index * (graphWidth - padX * 2) / (graphReadings.length - 1));
-
-      const y = padTop + ((maxValue - value) / range) * (graphHeight - padTop - padBottom);
-
-      return { x, y, value, index };
-    });
-
-    let svgSegments = "";
-    let svgDots = "";
-    let svgLabels = "";
-
-    points.forEach((point, index) => {
-      if(index > 0){
-        const previous = points[index - 1];
-        const isDrop = point.value < previous.value;
-
-        svgSegments += `
-          <line
-            x1="${previous.x.toFixed(1)}"
-            y1="${previous.y.toFixed(1)}"
-            x2="${point.x.toFixed(1)}"
-            y2="${point.y.toFixed(1)}"
-            stroke="${isDrop ? "#b91c1c" : "#15803d"}"
-            stroke-width="5"
-            stroke-linecap="round"
-          />
-        `;
-      }
-
-      const isCurrent = index === points.length - 1;
-      const labelY = point.y < 42 ? point.y + 22 : point.y - 12;
-
-      svgDots += `
-        <circle
-          cx="${point.x.toFixed(1)}"
-          cy="${point.y.toFixed(1)}"
-          r="${isCurrent ? 8 : 6}"
-          fill="${isCurrent ? "#2563eb" : "#ffffff"}"
-          stroke="#0f172a"
-          stroke-width="2"
-        />
-      `;
-
-      svgLabels += `
-        <text
-          x="${point.x.toFixed(1)}"
-          y="${labelY.toFixed(1)}"
-          text-anchor="middle"
-          font-size="12"
-          font-weight="700"
-          fill="#0f172a"
-        >${point.value.toLocaleString()}</text>
-      `;
-    });
-
-    const odometerChartHtml = `
-      <svg class="odometer-chart" viewBox="0 0 ${graphWidth} ${graphHeight}" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="${graphWidth}" height="${graphHeight}" rx="18" fill="#ffffff"/>
-        <line x1="${padX}" y1="${graphHeight - padBottom}" x2="${graphWidth - padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
-        <line x1="${padX}" y1="${padTop}" x2="${padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
-        ${svgSegments}
-        ${svgDots}
-        ${svgLabels}
-      </svg>
-    `;
-
-    const dropDetailsHtml =
-      analysis.dropCount === 0
-      ? `<div class="safe-note">لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.</div>`
-      : analysis.drops.map((drop, index) => `
-          <div class="drop-row">
-            <strong>اشتباه ${index + 1}</strong>
-            <span>من ${drop.from.toLocaleString()} كم إلى ${drop.to.toLocaleString()} كم</span>
-            <b>الانخفاض: ${drop.amount.toLocaleString()} كم</b>
-          </div>
-        `).join("");
-
-    const timelineSummary =
-      analysis.dropCount > 0
-      ? `تم رصد ${analysis.dropCount} انخفاض غير طبيعي في قراءة العداد. أكبر انخفاض كان من ${analysis.biggestDrop.from.toLocaleString()} كم إلى ${analysis.biggestDrop.to.toLocaleString()} كم، بمقدار ${analysis.biggestDrop.amount.toLocaleString()} كم.`
-      : "لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.";
-
-    const w = window.open("", "_blank");
-
+    w.document.open();
     w.document.write(`
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <title>OdoTrust_Report</title>
-
 <style>
-@page{
-  size:A4;
-  margin:7mm;
-}
-
-*{
-  -webkit-print-color-adjust:exact !important;
-  print-color-adjust:exact !important;
-  box-sizing:border-box;
-}
-
-body{
-  font-family:Arial, Tahoma, sans-serif;
-  color:#0f172a;
-  background:#ffffff;
-  direction:rtl;
-  margin:0;
-  padding:0;
-}
-
-.header{
-  text-align:center;
-  border-bottom:4px solid #0f766e;
-  padding-bottom:10px;
-  margin-bottom:10px;
-}
-
-.logo{
-  width:82px;
-  margin-bottom:2px;
-}
-
-h1{
-  color:#0f766e;
-  margin:3px 0;
-  font-size:24px;
-}
-
-.subtitle{
-  color:#475569;
-  font-size:12px;
-}
-
-.box{
-  border:1px solid #cbd5e1;
-  border-radius:14px;
-  padding:9px;
-  margin:7px 0;
-  background:#f8fafc;
-}
-
-.box h2{
-  margin:0 0 7px;
-  color:#0f766e;
-  font-size:16px;
-}
-
-.en{
-  display:block;
-  font-size:11px;
-  color:#64748b;
-  font-weight:400;
-  margin-top:2px;
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:8px;
-}
-
-.item{
-  background:white;
-  border:1px solid #e2e8f0;
-  border-radius:11px;
-  padding:9px;
-}
-
-.label{
-  color:#64748b;
-  font-size:11px;
-  margin-bottom:3px;
-}
-
-.value{
-  font-size:15px;
-  font-weight:bold;
-}
-
-.status{
-  background:${statusColor} !important;
-  color:white !important;
-  padding:13px;
-  border-radius:13px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:9px;
-}
-
-.summary{
-  display:grid;
-  grid-template-columns:repeat(4, 1fr);
-  gap:8px;
-}
-
-.summary-card{
-  background:#ffffff;
-  border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:9px;
-  text-align:center;
-}
-
-.summary-value{
-  font-size:20px;
-  font-weight:800;
-  color:#0f172a;
-  line-height:1.2;
-}
-
-.summary-label{
-  font-size:11px;
-  color:#475569;
-  margin-top:3px;
-}
-
-.odometer-chart{
-  width:100%;
-  height:190px;
-  display:block;
-  margin-top:5px;
-}
-
-.legend{
-  display:flex;
-  gap:12px;
-  justify-content:center;
-  font-size:12px;
-  color:#475569;
-  margin-top:3px;
-}
-
-.legend span{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-}
-
-.up-dot,.down-dot,.current-dot{
-  width:12px;
-  height:12px;
-  border-radius:99px;
-  display:inline-block;
-}
-
-.up-dot{ background:#15803d; }
-.down-dot{ background:#b91c1c; }
-.current-dot{ background:#2563eb; }
-
-.drop-row{
-  background:#fee2e2;
-  border-right:5px solid #b91c1c;
-  color:#7f1d1d;
-  padding:8px 10px;
-  border-radius:10px;
-  margin-bottom:6px;
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  font-size:12px;
-}
-
-.safe-note{
-  background:#dcfce7;
-  color:#166534;
-  padding:10px;
-  border-radius:10px;
-  font-weight:bold;
-}
-
-.note{
-  color:#475569;
-  font-size:11px;
-  line-height:1.6;
-  margin:6px 0 0;
-}
+body{font-family:Arial,Tahoma,sans-serif;direction:rtl;text-align:center;padding:60px;color:#0f172a;}
+.box{border:1px solid #cbd5e1;border-radius:18px;padding:30px;background:#f8fafc;max-width:520px;margin:auto;}
 </style>
 </head>
-
 <body>
-
-<div class="header">
-  <img src="logo.png" class="logo">
-  <h1>تقرير فحص المركبة - OdoTrust</h1>
-  <div class="subtitle">Vehicle Inspection Report</div>
-  <div class="subtitle">تاريخ التقرير: ${reportDate}</div>
-</div>
-
 <div class="box">
-  <h2>بيانات المركبة <span class="en">Vehicle Details</span></h2>
-  <div class="grid">
-    <div class="item">
-      <div class="label">رقم الهيكل VIN</div>
-      <div class="value">${car.vin}</div>
-    </div>
-    <div class="item">
-      <div class="label">الشركة Make</div>
-      <div class="value">${car.make || "غير محدد"}</div>
-    </div>
-    <div class="item">
-      <div class="label">الموديل Model</div>
-      <div class="value">${car.model || "غير محدد"}</div>
-    </div>
-    <div class="item">
-      <div class="label">السنة Year</div>
-      <div class="value">${car.year || "غير محدد"}</div>
-    </div>
-    <div class="item">
-      <div class="label">آخر قراءة مسجلة</div>
-      <div class="value">${analysis.currentMileage.toLocaleString()} كم</div>
-    </div>
-    <div class="item">
-      <div class="label">عدد القراءات</div>
-      <div class="value">${analysis.readings.length}</div>
-    </div>
-  </div>
+<h2>جاري تجهيز التقرير...</h2>
+<p>يرجى الانتظار لحظات.</p>
 </div>
-
-<div class="box">
-  <h2>نتيجة الفحص <span class="en">Inspection Result</span></h2>
-  <div class="status">${analysis.statusText}</div>
-  <div class="summary">
-    <div class="summary-card">
-      <div class="summary-value">${analysis.riskScore} / 100</div>
-      <div class="summary-label">درجة الخطورة</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-value">${riskLabel}</div>
-      <div class="summary-label">مستوى الخطورة</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-value">${analysis.maxMileage.toLocaleString()} كم</div>
-      <div class="summary-label">أعلى قراءة</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-value">${analysis.dropCount}</div>
-      <div class="summary-label">مرات الانخفاض</div>
-    </div>
-  </div>
-</div>
-
-<div class="box">
-  <h2>مؤشر حركة العداد <span class="en">Odometer Movement Indicator</span></h2>
-  ${odometerChartHtml}
-  <div class="legend">
-    <span><i class="up-dot"></i> ارتفاع طبيعي</span>
-    <span><i class="down-dot"></i> انخفاض مشبوه</span>
-    <span><i class="current-dot"></i> آخر قراءة</span>
-  </div>
-  <p class="note">${timelineSummary}</p>
-</div>
-
-<div class="box">
-  <h2>تفاصيل الانخفاضات غير الطبيعية <span class="en">Suspicious Drops</span></h2>
-  ${dropDetailsHtml}
-</div>
-
-<div class="box">
-  <h2>التوصية <span class="en">Recommendation</span></h2>
-  <p>${recommendation}</p>
-</div>
-
-<p class="note">
-ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
-</p>
-
 </body>
 </html>
-`);
-
+    `);
     w.document.close();
-    w.document.title = "OdoTrust_Report";
-    w.focus();
-    setTimeout(() => w.print(), 700);
+
+    try{
+      const found = await getCarAndHistory(vin);
+
+      if(!found){
+        w.close();
+        alert("ابحث عن مركبة أولاً");
+        return;
+      }
+
+      const { car, historyData } = found;
+      const analysis = analyzeMileage(car, historyData);
+      const reportDate = new Date().toLocaleDateString("ar-SA-u-ca-gregory");
+
+      const riskLabel =
+        analysis.riskLevel === "high" ? "اشتباه تلاعب" :
+        analysis.riskLevel === "low" ? "لا توجد مؤشرات" :
+        "لا يوجد تلاعب مرصود";
+
+      const statusColor =
+        analysis.riskLevel === "high" ? "#b91c1c" :
+        analysis.riskLevel === "low" ? "#15803d" :
+        "#2563eb";
+
+      const recommendation =
+        analysis.riskLevel === "high"
+        ? "ينصح بعدم إتمام الشراء قبل فحص المركبة والتحقق من سجل الصيانة."
+        : analysis.riskLevel === "low"
+        ? "لا توجد مؤشرات تلاعب ضمن القراءات المتوفرة، مع استمرار الفحص المعتاد قبل الشراء."
+        : "لا يوجد تلاعب مرصود ضمن البيانات المتوفرة، ويفضل التحقق من سجل الصيانة عند الشراء.";
+
+      const resultReason =
+        analysis.riskLevel === "high"
+        ? `تم رصد ${analysis.dropCount} انخفاض غير طبيعي. أكبر انخفاض من ${analysis.biggestDrop.from.toLocaleString()} كم إلى ${analysis.biggestDrop.to.toLocaleString()} كم، بمقدار ${analysis.biggestDrop.amount.toLocaleString()} كم.`
+        : analysis.riskLevel === "low"
+        ? "قراءات العداد المتوفرة صاعدة بشكل طبيعي، ولم يتم رصد أي انخفاض في التسلسل."
+        : "تم العثور على قراءة واحدة فقط، ولم يظهر أي انخفاض أو تلاعب ضمن البيانات المتوفرة.";
+
+      const graphReadings = analysis.readings.length
+        ? analysis.readings
+        : [analysis.currentMileage || Number(car.mileage || 0)];
+
+      const graphWidth = 760;
+      const graphHeight = 150;
+      const padX = 34;
+      const padTop = 24;
+      const padBottom = 34;
+      const minValue = Math.min(...graphReadings);
+      const maxValue = Math.max(...graphReadings);
+      const range = Math.max(1, maxValue - minValue);
+
+      const points = graphReadings.map((value, index) => {
+        const x = graphReadings.length === 1
+          ? graphWidth / 2
+          : padX + (index * (graphWidth - padX * 2) / (graphReadings.length - 1));
+
+        const y = padTop + ((maxValue - value) / range) * (graphHeight - padTop - padBottom);
+
+        return { x, y, value, index };
+      });
+
+      let svgSegments = "";
+      let svgDots = "";
+      let svgLabels = "";
+
+      points.forEach((point, index) => {
+        if(index > 0){
+          const previous = points[index - 1];
+          const isDrop = point.value < previous.value;
+
+          svgSegments += `
+            <line
+              x1="${previous.x.toFixed(1)}"
+              y1="${previous.y.toFixed(1)}"
+              x2="${point.x.toFixed(1)}"
+              y2="${point.y.toFixed(1)}"
+              stroke="${isDrop ? "#b91c1c" : "#15803d"}"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+          `;
+        }
+
+        const isCurrent = index === points.length - 1;
+        const labelY = point.y < 35 ? point.y + 22 : point.y - 10;
+
+        svgDots += `
+          <circle
+            cx="${point.x.toFixed(1)}"
+            cy="${point.y.toFixed(1)}"
+            r="${isCurrent ? 8 : 6}"
+            fill="${isCurrent ? "#2563eb" : "#ffffff"}"
+            stroke="#0f172a"
+            stroke-width="2"
+          />
+        `;
+
+        svgLabels += `
+          <text
+            x="${point.x.toFixed(1)}"
+            y="${labelY.toFixed(1)}"
+            text-anchor="middle"
+            font-size="11"
+            font-weight="800"
+            fill="#0f172a"
+          >${point.value.toLocaleString()}</text>
+        `;
+      });
+
+      const odometerChartHtml = `
+        <svg class="odometer-chart" viewBox="0 0 ${graphWidth} ${graphHeight}" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="${graphWidth}" height="${graphHeight}" rx="18" fill="#ffffff"/>
+          <line x1="${padX}" y1="${graphHeight - padBottom}" x2="${graphWidth - padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
+          <line x1="${padX}" y1="${padTop}" x2="${padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
+          ${svgSegments}
+          ${svgDots}
+          ${svgLabels}
+        </svg>
+      `;
+
+      const dropsPreview = analysis.dropCount === 0
+        ? "لا يوجد انخفاض مرصود"
+        : `أكبر انخفاض: ${analysis.biggestDrop.from.toLocaleString()} → ${analysis.biggestDrop.to.toLocaleString()} كم`;
+
+      const reportHtml = `
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>OdoTrust_Report</title>
+<style>
+@page{ size:A4; margin:7mm; }
+*{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; box-sizing:border-box; }
+body{ font-family:Arial,Tahoma,sans-serif; color:#0f172a; background:#ffffff; direction:rtl; margin:0; padding:0; }
+.header{ display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid #0f766e; padding-bottom:10px; margin-bottom:10px; }
+.logo{ width:78px; }
+.title-block{ text-align:center; flex:1; }
+h1{ color:#0f766e; margin:0; font-size:25px; }
+.subtitle{ color:#475569; font-size:12px; margin-top:3px; }
+.date-box{ color:#475569; font-size:12px; text-align:left; min-width:100px; }
+.main-status{ background:${statusColor} !important; color:white !important; border-radius:18px; padding:16px; text-align:center; margin:10px 0; box-shadow:0 8px 18px rgba(15,23,42,.12); }
+.status-title{ font-size:27px; font-weight:900; margin-bottom:4px; }
+.status-en{ font-size:13px; opacity:.95; }
+.box{ border:1px solid #cbd5e1; border-radius:16px; padding:10px; margin:8px 0; background:#f8fafc; }
+.box h2{ margin:0 0 8px; color:#0f766e; font-size:16px; }
+.en-title{ color:#64748b; font-size:12px; font-weight:600; }
+.vehicle-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:8px; }
+.metric-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+.item,.metric{ background:#ffffff; border:1px solid #e2e8f0; border-radius:13px; padding:10px; text-align:center; }
+.label{ color:#64748b; font-size:11px; margin-bottom:4px; }
+.value{ font-size:16px; font-weight:900; color:#0f172a; }
+.metric .value{ font-size:21px; }
+.odometer-chart{ width:100%; height:145px; display:block; }
+.legend{ display:flex; justify-content:center; gap:14px; font-size:12px; color:#475569; margin-top:2px; }
+.legend span{ display:inline-flex; align-items:center; gap:5px; }
+.dot{ width:12px; height:12px; border-radius:99px; display:inline-block; }
+.up{ background:#15803d; }
+.down{ background:#b91c1c; }
+.current{ background:#2563eb; }
+.reason{ background:#ffffff; border-right:5px solid ${statusColor}; border-radius:12px; padding:10px; font-size:14px; font-weight:700; line-height:1.6; }
+.recommendation{ margin:0; font-size:14px; font-weight:700; line-height:1.6; }
+.small-note{ color:#64748b; font-size:10px; line-height:1.5; margin-top:6px; text-align:center; }
+</style>
+</head>
+<body>
+<div class="header">
+  <img src="logo.png" class="logo">
+  <div class="title-block">
+    <h1>تقرير فحص المركبة</h1>
+    <div class="subtitle">Vehicle Inspection Report - OdoTrust</div>
+  </div>
+  <div class="date-box">${reportDate}</div>
+</div>
+<div class="main-status">
+  <div class="status-title">${analysis.statusText}</div>
+  <div class="status-en">Odometer Check Result</div>
+</div>
+<div class="box">
+  <h2>بيانات المركبة <span class="en-title">| Vehicle Details</span></h2>
+  <div class="vehicle-grid">
+    <div class="item"><div class="label">VIN</div><div class="value">${car.vin}</div></div>
+    <div class="item"><div class="label">الشركة | Make</div><div class="value">${car.make || "غير محدد"}</div></div>
+    <div class="item"><div class="label">الموديل | Model</div><div class="value">${car.model || "غير محدد"}</div></div>
+    <div class="item"><div class="label">السنة | Year</div><div class="value">${car.year || "غير محدد"}</div></div>
+  </div>
+</div>
+<div class="box">
+  <h2>الخلاصة الرقمية <span class="en-title">| Key Numbers</span></h2>
+  <div class="metric-grid">
+    <div class="metric"><div class="value">${analysis.currentMileage.toLocaleString()}</div><div class="label">آخر قراءة</div></div>
+    <div class="metric"><div class="value">${analysis.maxMileage.toLocaleString()}</div><div class="label">أعلى قراءة</div></div>
+    <div class="metric"><div class="value">${analysis.readings.length}</div><div class="label">عدد القراءات</div></div>
+    <div class="metric"><div class="value">${analysis.dropCount}</div><div class="label">عدد الانخفاضات</div></div>
+  </div>
+</div>
+<div class="box">
+  <h2>مؤشر حركة العداد <span class="en-title">| Odometer Movement</span></h2>
+  ${odometerChartHtml}
+  <div class="legend">
+    <span><i class="dot up"></i>ارتفاع طبيعي</span>
+    <span><i class="dot down"></i>انخفاض مشبوه</span>
+    <span><i class="dot current"></i>آخر قراءة</span>
+  </div>
+</div>
+<div class="box">
+  <h2>سبب النتيجة <span class="en-title">| Why This Result?</span></h2>
+  <div class="reason">${resultReason}<br>${dropsPreview}</div>
+</div>
+<div class="box">
+  <h2>التوصية <span class="en-title">| Recommendation</span></h2>
+  <p class="recommendation">${recommendation}</p>
+</div>
+<div class="small-note">هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني أو التحقق من السجلات الرسمية قبل الشراء.</div>
+</body>
+</html>
+      `;
+
+      w.document.open();
+      w.document.write(reportHtml);
+      w.document.close();
+      w.document.title = "OdoTrust_Report";
+      w.focus();
+      setTimeout(() => w.print(), 900);
+    }catch(error){
+      console.error(error);
+      w.document.open();
+      w.document.write(`
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"><title>خطأ في التقرير</title></head>
+<body style="font-family:Arial;direction:rtl;padding:40px;color:#b91c1c;">
+<h2>حدث خطأ أثناء تجهيز التقرير</h2>
+<p>${error.message}</p>
+</body>
+</html>
+      `);
+      w.document.close();
+      alert("حدث خطأ أثناء تجهيز التقرير: " + error.message);
+    }
   }
 
   async function editCar(id){
