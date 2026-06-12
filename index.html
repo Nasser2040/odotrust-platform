@@ -561,7 +561,9 @@
 
     if(error || !cars || cars.length === 0) return null;
 
-    const car = cars.find(c => c.make && c.model && Number(c.mileage) > 0) || cars[0];
+    const car = cars
+      .filter(c => c.make && c.model && Number(c.mileage) > 0)
+      .sort((a,b) => Number(b.mileage) - Number(a.mileage))[0] || cars[0];
 
     const { data: historyData } = await client
       .from("mileage_history")
@@ -647,40 +649,96 @@
 
     const reportDate = new Date().toLocaleDateString("ar-SA-u-ca-gregory");
 
-    let pathHtml = "";
+    const graphReadings = analysis.readings.length
+      ? analysis.readings
+      : [analysis.currentMileage || Number(car.mileage || 0)];
 
-    if(analysis.readings.length === 0){
-      pathHtml = `<div class="path-empty">لا توجد قراءات كافية لعرض مسار العداد.</div>`;
-    }else{
-      analysis.readings.forEach((mileage, index) => {
-        if(index > 0){
-          const previous = analysis.readings[index - 1];
-          const isDrop = mileage < previous;
+    const graphWidth = 780;
+    const graphHeight = 210;
+    const padX = 42;
+    const padTop = 30;
+    const padBottom = 42;
+    const minValue = Math.min(...graphReadings);
+    const maxValue = Math.max(...graphReadings);
+    const range = Math.max(1, maxValue - minValue);
 
-          pathHtml += `
-            <span class="${isDrop ? "arrow-down" : "arrow-up"}">
-              ${isDrop ? "↓ انخفاض" : "↑ ارتفاع"}
-            </span>
-          `;
-        }
+    const points = graphReadings.map((value, index) => {
+      const x = graphReadings.length === 1
+        ? graphWidth / 2
+        : padX + (index * (graphWidth - padX * 2) / (graphReadings.length - 1));
 
-        pathHtml += `
-          <span class="reading-chip ${index === analysis.readings.length - 1 ? "current-chip" : ""}">
-            ${mileage.toLocaleString()} كم
-          </span>
+      const y = padTop + ((maxValue - value) / range) * (graphHeight - padTop - padBottom);
+
+      return { x, y, value, index };
+    });
+
+    let svgSegments = "";
+    let svgDots = "";
+    let svgLabels = "";
+
+    points.forEach((point, index) => {
+      if(index > 0){
+        const previous = points[index - 1];
+        const isDrop = point.value < previous.value;
+
+        svgSegments += `
+          <line
+            x1="${previous.x.toFixed(1)}"
+            y1="${previous.y.toFixed(1)}"
+            x2="${point.x.toFixed(1)}"
+            y2="${point.y.toFixed(1)}"
+            stroke="${isDrop ? "#b91c1c" : "#15803d"}"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
         `;
-      });
-    }
+      }
+
+      const isCurrent = index === points.length - 1;
+      const labelY = point.y < 42 ? point.y + 22 : point.y - 12;
+
+      svgDots += `
+        <circle
+          cx="${point.x.toFixed(1)}"
+          cy="${point.y.toFixed(1)}"
+          r="${isCurrent ? 8 : 6}"
+          fill="${isCurrent ? "#2563eb" : "#ffffff"}"
+          stroke="#0f172a"
+          stroke-width="2"
+        />
+      `;
+
+      svgLabels += `
+        <text
+          x="${point.x.toFixed(1)}"
+          y="${labelY.toFixed(1)}"
+          text-anchor="middle"
+          font-size="12"
+          font-weight="700"
+          fill="#0f172a"
+        >${point.value.toLocaleString()}</text>
+      `;
+    });
+
+    const odometerChartHtml = `
+      <svg class="odometer-chart" viewBox="0 0 ${graphWidth} ${graphHeight}" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="${graphWidth}" height="${graphHeight}" rx="18" fill="#ffffff"/>
+        <line x1="${padX}" y1="${graphHeight - padBottom}" x2="${graphWidth - padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
+        <line x1="${padX}" y1="${padTop}" x2="${padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
+        ${svgSegments}
+        ${svgDots}
+        ${svgLabels}
+      </svg>
+    `;
 
     const dropDetailsHtml =
       analysis.dropCount === 0
       ? `<div class="safe-note">لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.</div>`
       : analysis.drops.map((drop, index) => `
           <div class="drop-row">
-            <strong>اشتباه ${index + 1}:</strong>
-            من ${drop.from.toLocaleString()} كم
-            إلى ${drop.to.toLocaleString()} كم
-            <span>الانخفاض: ${drop.amount.toLocaleString()} كم</span>
+            <strong>اشتباه ${index + 1}</strong>
+            <span>من ${drop.from.toLocaleString()} كم إلى ${drop.to.toLocaleString()} كم</span>
+            <b>الانخفاض: ${drop.amount.toLocaleString()} كم</b>
           </div>
         `).join("");
 
@@ -722,19 +780,19 @@ body{
 .header{
   text-align:center;
   border-bottom:4px solid #0f766e;
-  padding-bottom:12px;
-  margin-bottom:12px;
+  padding-bottom:10px;
+  margin-bottom:10px;
 }
 
 .logo{
-  width:88px;
-  margin-bottom:4px;
+  width:82px;
+  margin-bottom:2px;
 }
 
 h1{
   color:#0f766e;
-  margin:4px 0;
-  font-size:25px;
+  margin:3px 0;
+  font-size:24px;
 }
 
 .subtitle{
@@ -745,69 +803,76 @@ h1{
 .box{
   border:1px solid #cbd5e1;
   border-radius:14px;
-  padding:10px;
-  margin:8px 0;
+  padding:9px;
+  margin:7px 0;
   background:#f8fafc;
 }
 
 .box h2{
-  margin:0 0 8px;
+  margin:0 0 7px;
   color:#0f766e;
-  font-size:17px;
+  font-size:16px;
+}
+
+.en{
+  display:block;
+  font-size:11px;
+  color:#64748b;
+  font-weight:400;
+  margin-top:2px;
 }
 
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:7px;
+  gap:8px;
 }
 
 .item{
   background:white;
   border:1px solid #e2e8f0;
-  border-radius:10px;
-  padding:8px;
+  border-radius:11px;
+  padding:9px;
 }
 
 .label{
   color:#64748b;
   font-size:11px;
-  margin-bottom:4px;
+  margin-bottom:3px;
 }
 
 .value{
-  font-size:14px;
+  font-size:15px;
   font-weight:bold;
 }
 
 .status{
   background:${statusColor} !important;
   color:white !important;
-  padding:12px;
-  border-radius:12px;
+  padding:13px;
+  border-radius:13px;
   text-align:center;
-  font-size:19px;
+  font-size:20px;
   font-weight:bold;
-  margin-bottom:10px;
+  margin-bottom:9px;
 }
 
-.summary-grid{
+.summary{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:7px;
+  grid-template-columns:repeat(4, 1fr);
+  gap:8px;
 }
 
 .summary-card{
-  background:white;
+  background:#ffffff;
   border:1px solid #e2e8f0;
-  border-radius:10px;
-  padding:9px 7px;
+  border-radius:12px;
+  padding:9px;
   text-align:center;
-  font-weight:bold;
 }
 
 .summary-value{
-  font-size:18px;
+  font-size:20px;
   font-weight:800;
   color:#0f172a;
   line-height:1.2;
@@ -815,72 +880,61 @@ h1{
 
 .summary-label{
   font-size:11px;
-  color:#64748b;
+  color:#475569;
   margin-top:3px;
 }
 
-.meter-path{
+.odometer-chart{
+  width:100%;
+  height:190px;
+  display:block;
+  margin-top:5px;
+}
+
+.legend{
   display:flex;
-  flex-wrap:wrap;
-  gap:6px;
+  gap:12px;
+  justify-content:center;
+  font-size:12px;
+  color:#475569;
+  margin-top:3px;
+}
+
+.legend span{
+  display:inline-flex;
   align-items:center;
-  line-height:1.8;
-  background:white;
-  border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:10px;
+  gap:4px;
 }
 
-.reading-chip{
+.up-dot,.down-dot,.current-dot{
+  width:12px;
+  height:12px;
+  border-radius:99px;
   display:inline-block;
-  background:#f1f5f9;
-  border:1px solid #cbd5e1;
-  border-radius:999px;
-  padding:5px 8px;
-  font-weight:bold;
-  font-size:12px;
 }
 
-.current-chip{
-  background:#dbeafe;
-  border-color:#2563eb;
-  color:#1d4ed8;
-}
-
-.arrow-up{
-  color:#15803d;
-  font-weight:bold;
-  font-size:12px;
-}
-
-.arrow-down{
-  color:#b91c1c;
-  font-weight:bold;
-  font-size:12px;
-}
+.up-dot{ background:#15803d; }
+.down-dot{ background:#b91c1c; }
+.current-dot{ background:#2563eb; }
 
 .drop-row{
   background:#fee2e2;
   border-right:5px solid #b91c1c;
-  border-radius:10px;
-  padding:8px;
-  margin:6px 0;
   color:#7f1d1d;
-  font-size:13px;
-}
-
-.drop-row span{
-  display:block;
-  font-weight:bold;
-  margin-top:3px;
+  padding:8px 10px;
+  border-radius:10px;
+  margin-bottom:6px;
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:12px;
 }
 
 .safe-note{
   background:#dcfce7;
-  border-right:5px solid #15803d;
+  color:#166534;
+  padding:10px;
   border-radius:10px;
-  padding:8px;
-  color:#14532d;
   font-weight:bold;
 }
 
@@ -888,7 +942,7 @@ h1{
   color:#475569;
   font-size:11px;
   line-height:1.6;
-  margin-top:8px;
+  margin:6px 0 0;
 }
 </style>
 </head>
@@ -898,31 +952,31 @@ h1{
 <div class="header">
   <img src="logo.png" class="logo">
   <h1>تقرير فحص المركبة - OdoTrust</h1>
-  <div class="subtitle">عداد موثوق لفحص المركبات وكشف مؤشرات التلاعب بالعداد</div>
+  <div class="subtitle">Vehicle Inspection Report</div>
   <div class="subtitle">تاريخ التقرير: ${reportDate}</div>
 </div>
 
 <div class="box">
-  <h2>بيانات المركبة</h2>
+  <h2>بيانات المركبة <span class="en">Vehicle Details</span></h2>
   <div class="grid">
     <div class="item">
       <div class="label">رقم الهيكل VIN</div>
       <div class="value">${car.vin}</div>
     </div>
     <div class="item">
-      <div class="label">الشركة</div>
+      <div class="label">الشركة Make</div>
       <div class="value">${car.make || "غير محدد"}</div>
     </div>
     <div class="item">
-      <div class="label">الموديل</div>
+      <div class="label">الموديل Model</div>
       <div class="value">${car.model || "غير محدد"}</div>
     </div>
     <div class="item">
-      <div class="label">السنة</div>
+      <div class="label">السنة Year</div>
       <div class="value">${car.year || "غير محدد"}</div>
     </div>
     <div class="item">
-      <div class="label">العداد الحالي وقت الفحص</div>
+      <div class="label">آخر قراءة مسجلة</div>
       <div class="value">${analysis.currentMileage.toLocaleString()} كم</div>
     </div>
     <div class="item">
@@ -933,10 +987,9 @@ h1{
 </div>
 
 <div class="box">
-  <h2>نتيجة الفحص</h2>
+  <h2>نتيجة الفحص <span class="en">Inspection Result</span></h2>
   <div class="status">${analysis.statusText}</div>
-
-  <div class="summary-grid">
+  <div class="summary">
     <div class="summary-card">
       <div class="summary-value">${analysis.riskScore} / 100</div>
       <div class="summary-label">درجة الخطورة</div>
@@ -957,20 +1010,23 @@ h1{
 </div>
 
 <div class="box">
-  <h2>مسار العداد الزمني</h2>
-  <div class="meter-path">
-    ${pathHtml}
+  <h2>مؤشر حركة العداد <span class="en">Odometer Movement Indicator</span></h2>
+  ${odometerChartHtml}
+  <div class="legend">
+    <span><i class="up-dot"></i> ارتفاع طبيعي</span>
+    <span><i class="down-dot"></i> انخفاض مشبوه</span>
+    <span><i class="current-dot"></i> آخر قراءة</span>
   </div>
   <p class="note">${timelineSummary}</p>
 </div>
 
 <div class="box">
-  <h2>تفاصيل الانخفاضات غير الطبيعية</h2>
+  <h2>تفاصيل الانخفاضات غير الطبيعية <span class="en">Suspicious Drops</span></h2>
   ${dropDetailsHtml}
 </div>
 
 <div class="box">
-  <h2>التوصية</h2>
+  <h2>التوصية <span class="en">Recommendation</span></h2>
   <p>${recommendation}</p>
 </div>
 
