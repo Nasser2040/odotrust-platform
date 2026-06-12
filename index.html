@@ -929,8 +929,17 @@ h1{ color:#0f766e; margin:0; font-size:25px; }
 
     let html = "";
 
-    cars.forEach(car => {
-      html += `
+const uniqueCars = Object.values(cars.reduce((acc, car) => {
+  const vin = car.vin || car.id;
+
+  if(!acc[vin] || Number(car.mileage || 0) > Number(acc[vin].mileage || 0)){
+    acc[vin] = car;
+  }
+
+  return acc;
+}, {}));
+
+uniqueCars.forEach(car => {      html += `
         <div class="info-card">
         
           >
