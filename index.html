@@ -189,6 +189,35 @@
       font-weight:bold;
     }
 
+
+    .mini-path{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin-top:14px;
+      line-height:1.8;
+    }
+
+    .mini-chip{
+      background:#0f172a;
+      border:1px solid rgba(56,189,248,.25);
+      border-radius:12px;
+      padding:8px 10px;
+      color:#e2e8f0;
+      font-weight:bold;
+    }
+
+    .mini-up{
+      color:#86efac;
+      font-weight:bold;
+    }
+
+    .mini-down{
+      color:#fca5a5;
+      font-weight:bold;
+    }
+
     #message,
     #authMessage{
       text-align:center;
@@ -275,31 +304,86 @@
     return value.trim().toUpperCase();
   }
 
-  function analyzeMileage(car, historyData){
-    const currentMileage = Number(car.mileage || car.current_mileage || 0);
-    const readings = (historyData || [])
-      .map(x => Number(x.mileage))
-      .filter(x => x > 0);
+  function getReadingDate(item){
+    return item.inspection_date || item.created_at || "";
+  }
 
-    let mileageDrop = false;
+  function sortHistory(historyData){
+    return (historyData || [])
+      .filter(item => Number(item.mileage) > 0)
+      .sort((a,b) => {
+        const dateA = new Date(getReadingDate(a)).getTime() || 0;
+        const dateB = new Date(getReadingDate(b)).getTime() || 0;
+
+        if(dateA !== dateB) return dateA - dateB;
+
+        return Number(a.id || 0) - Number(b.id || 0);
+      });
+  }
+
+  function analyzeMileage(car, historyData){
+    const validHistory = sortHistory(historyData);
+    const readings = validHistory.map(item => Number(item.mileage));
+
+    if(readings.length === 0 && Number(car.mileage || 0) > 0){
+      readings.push(Number(car.mileage || 0));
+    }
+
+    const currentMileage = readings.length
+      ? readings[readings.length - 1]
+      : Number(car.mileage || 0);
+
+    const minMileage = readings.length ? Math.min(...readings) : currentMileage;
+    const maxMileage = readings.length ? Math.max(...readings) : currentMileage;
+
+    const drops = [];
+    const movements = [];
 
     for(let i = 1; i < readings.length; i++){
-      if(readings[i] < readings[i - 1]) mileageDrop = true;
+      const from = readings[i - 1];
+      const to = readings[i];
+      const diff = to - from;
+
+      if(diff < 0){
+        drops.push({
+          step:i + 1,
+          from,
+          to,
+          amount:Math.abs(diff)
+        });
+      }
+
+      movements.push({
+        step:i + 1,
+        from,
+        to,
+        diff,
+        type:diff < 0 ? "down" : diff > 0 ? "up" : "same"
+      });
     }
 
-    if(readings.length > 0){
-      const maxHistory = Math.max(...readings);
-      if(currentMileage > 0 && currentMileage < maxHistory) mileageDrop = true;
-    }
+    const dropCount = drops.length;
+
+    let biggestDrop = {
+      amount:0,
+      from:0,
+      to:0
+    };
+
+    drops.forEach(drop => {
+      if(drop.amount > biggestDrop.amount){
+        biggestDrop = drop;
+      }
+    });
 
     let riskLevel = "unknown";
     let riskScore = 30;
     let statusText = "البيانات غير كافية لإصدار حكم واضح";
     let statusClass = "medium";
 
-    if(mileageDrop){
+    if(dropCount > 0){
       riskLevel = "high";
-      riskScore = 90;
+      riskScore = Math.min(98, 85 + dropCount * 3);
       statusText = "يوجد اشتباه تلاعب بالعداد";
       statusClass = "warning";
     }else if(readings.length <= 1){
@@ -314,7 +398,54 @@
       statusClass = "safe";
     }
 
-    return { readings, riskLevel, riskScore, statusText, statusClass };
+    return {
+      validHistory,
+      readings,
+      movements,
+      drops,
+      dropCount,
+      biggestDrop,
+      minMileage,
+      maxMileage,
+      currentMileage,
+      riskLevel,
+      riskScore,
+      statusText,
+      statusClass
+    };
+  }
+
+  function buildWebTimeline(analysis){
+    if(!analysis.readings.length){
+      return "<p>لا توجد قراءات كافية لعرض مسار العداد.</p>";
+    }
+
+    let html = `<div class="mini-path">`;
+
+    analysis.readings.forEach((mileage, index) => {
+      if(index > 0){
+        const previous = analysis.readings[index - 1];
+        html += mileage < previous
+          ? `<span class="mini-down">↓</span>`
+          : `<span class="mini-up">↑</span>`;
+      }
+
+      html += `<span class="mini-chip">${mileage.toLocaleString()} كم</span>`;
+    });
+
+    html += `</div>`;
+
+    if(analysis.dropCount > 0){
+      html += `
+        <p style="color:#fca5a5;font-weight:bold;">
+          تم رصد ${analysis.dropCount} انخفاض غير طبيعي. أكبر انخفاض من
+          ${analysis.biggestDrop.from.toLocaleString()} كم إلى
+          ${analysis.biggestDrop.to.toLocaleString()} كم.
+        </p>
+      `;
+    }
+
+    return html;
   }
 
   async function signUp(){
@@ -430,9 +561,8 @@
 
     if(error || !cars || cars.length === 0) return null;
 
-const car = cars
-  .filter(c => c.make && c.model && Number(c.mileage) > 0)
-  .sort((a,b) => Number(b.mileage) - Number(a.mileage))[0] || cars[0];
+    const car = cars.find(c => c.make && c.model && Number(c.mileage) > 0) || cars[0];
+
     const { data: historyData } = await client
       .from("mileage_history")
       .select("*")
@@ -460,18 +590,7 @@ const car = cars
 
     const { car, historyData } = found;
     const analysis = analyzeMileage(car, historyData);
-
-    let historyHtml = "<h3>سجل العدادات</h3>";
-
-    const validHistory = historyData.filter(item => Number(item.mileage) > 0);
-
-    if(validHistory.length === 0){
-      historyHtml += "<p>لا توجد قراءات عداد سابقة</p>";
-    }else{
-      validHistory.forEach(item => {
-        historyHtml += `<p>${Number(item.mileage).toLocaleString()} كم</p>`;
-      });
-    }
+    const webTimeline = buildWebTimeline(analysis);
 
     result.innerHTML = `
       <div class="info-card">
@@ -480,9 +599,12 @@ const car = cars
         <p><strong>الشركة:</strong> ${car.make || "غير محدد"}</p>
         <p><strong>الموديل:</strong> ${car.model || "غير محدد"}</p>
         <p><strong>السنة:</strong> ${car.year || "غير محدد"}</p>
-        <p><strong>العداد الحالي:</strong> ${Number(car.mileage || 0).toLocaleString()} كم</p>
+        <p><strong>العداد الحالي:</strong> ${analysis.currentMileage.toLocaleString()} كم</p>
         <p><strong>درجة الخطورة:</strong> ${analysis.riskScore} / 100</p>
-        ${historyHtml}
+
+        <h3>مسار العداد الزمني</h3>
+        ${webTimeline}
+
         <div class="${analysis.statusClass}">${analysis.statusText}</div>
       </div>
     `;
@@ -503,54 +625,73 @@ const car = cars
       return;
     }
 
- const { car, historyData } = found;
-const analysis = analyzeMileage(car, historyData);
-const validHistory = (historyData || []).filter(item => Number(item.mileage) > 0);
+    const { car, historyData } = found;
+    const analysis = analyzeMileage(car, historyData);
 
-const mileages = validHistory.map(item => Number(item.mileage));
-const minMileage = mileages.length ? Math.min(...mileages) : Number(car.mileage || 0);
-const maxMileage = mileages.length ? Math.max(...mileages) : Number(car.mileage || 0);
+    const riskLabel =
+      analysis.riskLevel === "high" ? "مرتفع" :
+      analysis.riskLevel === "low" ? "منخفض" :
+      "متوسط";
 
-const riskLabel =
-analysis.riskLevel === "high" ? "مرتفع" :
-analysis.riskLevel === "low" ? "منخفض" :
-"متوسط";
+    const statusColor =
+      analysis.riskLevel === "high" ? "#b91c1c" :
+      analysis.riskLevel === "low" ? "#15803d" :
+      "#b45309";
 
-const statusColor =
-analysis.riskLevel === "high" ? "#b91c1c" :
-analysis.riskLevel === "low" ? "#15803d" :
-"#b45309";
+    const recommendation =
+      analysis.riskLevel === "high"
+      ? "ينصح بعدم إتمام الشراء قبل فحص المركبة والتحقق من سجل الصيانة والفحص الدوري."
+      : analysis.riskLevel === "low"
+      ? "لا توجد مؤشرات واضحة على تلاعب بالعداد حسب البيانات المتوفرة."
+      : "ينصح بإضافة قراءات أو سجلات إضافية قبل الاعتماد على النتيجة.";
 
-const recommendation =
-analysis.riskLevel === "high"
-? "ينصح بعدم إتمام الشراء قبل فحص المركبة والتحقق من سجل الصيانة والفحص الدوري."
-: analysis.riskLevel === "low"
-? "لا توجد مؤشرات واضحة على تلاعب بالعداد حسب البيانات المتوفرة."
-: "ينصح بإضافة قراءات أو سجلات إضافية قبل الاعتماد على النتيجة.";
+    const reportDate = new Date().toLocaleDateString("ar-SA-u-ca-gregory");
 
-const reportDate =
-new Date().toLocaleDateString("ar-SA-u-ca-gregory");
+    let pathHtml = "";
 
-const historyRows = validHistory.length === 0
-? "<tr><td colspan='3'>لا توجد قراءات سابقة</td></tr>"
-: validHistory.map((item, index) => {
-    const dateValue = item.inspection_date || item.created_at;
-    const readingDate = dateValue
-      ? new Date(dateValue).toLocaleDateString("ar-SA-u-ca-gregory")
-      : "غير محدد";
+    if(analysis.readings.length === 0){
+      pathHtml = `<div class="path-empty">لا توجد قراءات كافية لعرض مسار العداد.</div>`;
+    }else{
+      analysis.readings.forEach((mileage, index) => {
+        if(index > 0){
+          const previous = analysis.readings[index - 1];
+          const isDrop = mileage < previous;
 
-    return `
-      <tr>
-        <td>${index + 1}</td>
-        <td>${Number(item.mileage).toLocaleString()} كم</td>
-        <td>${readingDate}</td>
-      </tr>
-    `;
-  }).join("");
+          pathHtml += `
+            <span class="${isDrop ? "arrow-down" : "arrow-up"}">
+              ${isDrop ? "↓ انخفاض" : "↑ ارتفاع"}
+            </span>
+          `;
+        }
 
-const w = window.open("", "_blank");
+        pathHtml += `
+          <span class="reading-chip ${index === analysis.readings.length - 1 ? "current-chip" : ""}">
+            ${mileage.toLocaleString()} كم
+          </span>
+        `;
+      });
+    }
 
-w.document.write(`
+    const dropDetailsHtml =
+      analysis.dropCount === 0
+      ? `<div class="safe-note">لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.</div>`
+      : analysis.drops.map((drop, index) => `
+          <div class="drop-row">
+            <strong>اشتباه ${index + 1}:</strong>
+            من ${drop.from.toLocaleString()} كم
+            إلى ${drop.to.toLocaleString()} كم
+            <span>الانخفاض: ${drop.amount.toLocaleString()} كم</span>
+          </div>
+        `).join("");
+
+    const timelineSummary =
+      analysis.dropCount > 0
+      ? `تم رصد ${analysis.dropCount} انخفاض غير طبيعي في قراءة العداد. أكبر انخفاض كان من ${analysis.biggestDrop.from.toLocaleString()} كم إلى ${analysis.biggestDrop.to.toLocaleString()} كم، بمقدار ${analysis.biggestDrop.amount.toLocaleString()} كم.`
+      : "لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.";
+
+    const w = window.open("", "_blank");
+
+    w.document.write(`
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -560,7 +701,8 @@ w.document.write(`
 <style>
 @page{
   size:A4;
-margin:7mm;}
+  margin:7mm;
+}
 
 *{
   -webkit-print-color-adjust:exact !important;
@@ -580,144 +722,173 @@ body{
 .header{
   text-align:center;
   border-bottom:4px solid #0f766e;
-  padding-bottom:18px;
-  margin-bottom:22px;
+  padding-bottom:12px;
+  margin-bottom:12px;
 }
 
 .logo{
-  width:105px;
-  margin-bottom:8px;
+  width:88px;
+  margin-bottom:4px;
 }
 
 h1{
   color:#0f766e;
-  margin:5px 0;
-  font-size:30px;
+  margin:4px 0;
+  font-size:25px;
 }
 
 .subtitle{
   color:#475569;
-  font-size:14px;
+  font-size:12px;
 }
 
 .box{
   border:1px solid #cbd5e1;
-  border-radius:16px;
- padding:12px;
-margin:9px 0;
+  border-radius:14px;
+  padding:10px;
+  margin:8px 0;
   background:#f8fafc;
 }
 
 .box h2{
-  margin-top:0;
+  margin:0 0 8px;
   color:#0f766e;
-  font-size:20px;
+  font-size:17px;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:7px;
 }
 
 .item{
   background:white;
   border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:12px;
+  border-radius:10px;
+  padding:8px;
 }
 
 .label{
   color:#64748b;
-  font-size:13px;
-  margin-bottom:5px;
+  font-size:11px;
+  margin-bottom:4px;
 }
 
 .value{
-  font-size:17px;
+  font-size:14px;
   font-weight:bold;
 }
 
 .status{
   background:${statusColor} !important;
   color:white !important;
-  padding:18px;
-  border-radius:14px;
+  padding:12px;
+  border-radius:12px;
   text-align:center;
-  font-size:22px;
+  font-size:19px;
   font-weight:bold;
-  margin-bottom:15px;
+  margin-bottom:10px;
 }
 
-.score{
+.summary-grid{
   display:grid;
-  grid-template-columns:repeat(3, 1fr);
-  gap:14px;
-  margin-top:12px;
+  grid-template-columns:repeat(4,1fr);
+  gap:7px;
 }
 
-.score-card{
-  background:#ffffff;
-  border:2px solid #cbd5e1;
-  border-radius:14px;
-  padding:18px 12px;
+.summary-card{
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  padding:9px 7px;
   text-align:center;
+  font-weight:bold;
 }
 
-.score-value{
-  font-size:28px;
+.summary-value{
+  font-size:18px;
   font-weight:800;
   color:#0f172a;
-  line-height:1.3;
-  margin-bottom:8px;
+  line-height:1.2;
 }
 
-.score-label{
-  font-size:15px;
-  font-weight:600;
-  color:#475569;
+.summary-label{
+  font-size:11px;
+  color:#64748b;
+  margin-top:3px;
 }
 
-.score div{
-  flex:1;
+.meter-path{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+  line-height:1.8;
   background:white;
   border:1px solid #e2e8f0;
   border-radius:12px;
-  padding:12px;
-  text-align:center;
-  font-weight:bold;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-  background:white;
-}
-
-th{
-  background:#e2e8f0;
-  color:#0f172a;
-}
-
-td,th{
-  border:1px solid #cbd5e1;
   padding:10px;
-  text-align:center;
+}
+
+.reading-chip{
+  display:inline-block;
+  background:#f1f5f9;
+  border:1px solid #cbd5e1;
+  border-radius:999px;
+  padding:5px 8px;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.current-chip{
+  background:#dbeafe;
+  border-color:#2563eb;
+  color:#1d4ed8;
+}
+
+.arrow-up{
+  color:#15803d;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.arrow-down{
+  color:#b91c1c;
+  font-weight:bold;
+  font-size:12px;
+}
+
+.drop-row{
+  background:#fee2e2;
+  border-right:5px solid #b91c1c;
+  border-radius:10px;
+  padding:8px;
+  margin:6px 0;
+  color:#7f1d1d;
+  font-size:13px;
+}
+
+.drop-row span{
+  display:block;
+  font-weight:bold;
+  margin-top:3px;
+}
+
+.safe-note{
+  background:#dcfce7;
+  border-right:5px solid #15803d;
+  border-radius:10px;
+  padding:8px;
+  color:#14532d;
+  font-weight:bold;
 }
 
 .note{
   color:#475569;
-  font-size:13px;
-  line-height:1.8;
-  margin-top:15px;
-}
-
-.footer{
-  margin-top:25px;
-  text-align:center;
-  color:#64748b;
-  font-size:12px;
+  font-size:11px;
+  line-height:1.6;
+  margin-top:8px;
 }
 </style>
 </head>
@@ -751,12 +922,12 @@ td,th{
       <div class="value">${car.year || "غير محدد"}</div>
     </div>
     <div class="item">
-      <div class="label">العداد الحالي</div>
-      <div class="value">${Number(car.mileage || 0).toLocaleString()} كم</div>
+      <div class="label">العداد الحالي وقت الفحص</div>
+      <div class="value">${analysis.currentMileage.toLocaleString()} كم</div>
     </div>
     <div class="item">
       <div class="label">عدد القراءات</div>
-      <div class="value">${validHistory.length}</div>
+      <div class="value">${analysis.readings.length}</div>
     </div>
   </div>
 </div>
@@ -765,12 +936,37 @@ td,th{
   <h2>نتيجة الفحص</h2>
   <div class="status">${analysis.statusText}</div>
 
-  <div class="score">
-    <div>درجة الخطورة<br>${analysis.riskScore} / 100</div>
-    <div>مستوى الخطورة<br>${riskLabel}</div>
-    <div>أعلى قراءة<br>${maxMileage.toLocaleString()} كم</div>
-    <div>أقل قراءة<br>${minMileage.toLocaleString()} كم</div>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="summary-value">${analysis.riskScore} / 100</div>
+      <div class="summary-label">درجة الخطورة</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-value">${riskLabel}</div>
+      <div class="summary-label">مستوى الخطورة</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-value">${analysis.maxMileage.toLocaleString()} كم</div>
+      <div class="summary-label">أعلى قراءة</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-value">${analysis.dropCount}</div>
+      <div class="summary-label">مرات الانخفاض</div>
+    </div>
   </div>
+</div>
+
+<div class="box">
+  <h2>مسار العداد الزمني</h2>
+  <div class="meter-path">
+    ${pathHtml}
+  </div>
+  <p class="note">${timelineSummary}</p>
+</div>
+
+<div class="box">
+  <h2>تفاصيل الانخفاضات غير الطبيعية</h2>
+  ${dropDetailsHtml}
 </div>
 
 <div class="box">
@@ -778,44 +974,20 @@ td,th{
   <p>${recommendation}</p>
 </div>
 
-<div class="box">
-  <h2>ملخص قراءات العداد</h2>
-
-  <div class="score">
-    <div class="score-card">
-      <div class="score-value">${validHistory.length}</div>
-      <div class="score-label">عدد القراءات</div>
-    </div>
-
-    <div class="score-card">
-      <div class="score-value">${maxMileage.toLocaleString()} كم</div>
-      <div class="score-label">أعلى قراءة</div>
-    </div>
-
-    <div class="score-card">
-      <div class="score-value">${minMileage.toLocaleString()} كم</div>
-      <div class="score-label">أقل قراءة</div>
-    </div>
-  </div>
-</div>
-
 <p class="note">
 ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
 </p>
-
-<div class="footer">
-© 2026 OdoTrust - عداد موثوق
-</div>
 
 </body>
 </html>
 `);
 
-w.document.close();
-w.document.title = "OdoTrust_Report";
-w.focus();
-setTimeout(() => w.print(), 700);
-   } 
+    w.document.close();
+    w.document.title = "OdoTrust_Report";
+    w.focus();
+    setTimeout(() => w.print(), 700);
+  }
+
   async function editCar(id){
     const newMileage = prompt("أدخل العداد الجديد");
     if(!newMileage) return;
