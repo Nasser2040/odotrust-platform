@@ -932,10 +932,7 @@ h1{ color:#0f766e; margin:0; font-size:25px; }
     cars.forEach(car => {
       html += `
         <div class="info-card">
-          <img
-            src="${car.image_url || 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?q=80&w=1200&auto=format&fit=crop'}"
-            style="width:100%;height:220px;object-fit:cover;border-radius:18px;margin-bottom:15px;"
-            alt="صورة المركبة"
+        
           >
           <p>🚗 ${car.make || ""} ${car.model || ""}</p>
           <p>📅 ${car.year || "غير محدد"}</p>
