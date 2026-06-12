@@ -640,15 +640,12 @@
       analysis.riskLevel === "low" ? "#15803d" :
       "#b45309";
 
-    const recommendation =
-      analysis.riskLevel === "high"
-      ? "ينصح بعدم إتمام الشراء قبل فحص المركبة والتحقق من سجل الصيانة والفحص الدوري."
-      : analysis.riskLevel === "low"
-      ? "لا توجد مؤشرات واضحة على تلاعب بالعداد حسب البيانات المتوفرة."
-      : "ينصح بإضافة قراءات أو سجلات إضافية قبل الاعتماد على النتيجة.";
-
-    const reportDate = new Date().toLocaleDateString("ar-SA-u-ca-gregory");
-
+   const recommendation =
+analysis.riskLevel === "high"
+? "ينصح بعدم الشراء قبل فحص المركبة والتحقق من سجل الصيانة."
+: analysis.riskLevel === "low"
+? "لا توجد مؤشرات واضحة على تلاعب بالعداد."
+: "البيانات محدودة وتحتاج إلى قراءات إضافية.";
     const graphReadings = analysis.readings.length
       ? analysis.readings
       : [analysis.currentMileage || Number(car.mileage || 0)];
