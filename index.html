@@ -630,6 +630,8 @@
     const { car, historyData } = found;
     const analysis = analyzeMileage(car, historyData);
 
+    const reportDate = new Date().toLocaleDateString("ar-SA-u-ca-gregory");
+
     const riskLabel =
       analysis.riskLevel === "high" ? "مرتفع" :
       analysis.riskLevel === "low" ? "منخفض" :
@@ -640,21 +642,22 @@
       analysis.riskLevel === "low" ? "#15803d" :
       "#b45309";
 
-   const recommendation =
-analysis.riskLevel === "high"
-? "ينصح بعدم الشراء قبل فحص المركبة والتحقق من سجل الصيانة."
-: analysis.riskLevel === "low"
-? "لا توجد مؤشرات واضحة على تلاعب بالعداد."
-: "البيانات محدودة وتحتاج إلى قراءات إضافية.";
+    const recommendation =
+      analysis.riskLevel === "high"
+      ? "ينصح بعدم الشراء قبل فحص المركبة والتحقق من سجل الصيانة والفحص الدوري."
+      : analysis.riskLevel === "low"
+      ? "لا توجد مؤشرات واضحة على تلاعب بالعداد حسب البيانات المتوفرة."
+      : "البيانات محدودة وتحتاج إلى قراءات إضافية قبل الاعتماد على النتيجة.";
+
     const graphReadings = analysis.readings.length
       ? analysis.readings
       : [analysis.currentMileage || Number(car.mileage || 0)];
 
     const graphWidth = 780;
-    const graphHeight = 210;
-    const padX = 42;
-    const padTop = 30;
-    const padBottom = 42;
+    const graphHeight = 150;
+    const padX = 36;
+    const padTop = 22;
+    const padBottom = 30;
     const minValue = Math.min(...graphReadings);
     const maxValue = Math.max(...graphReadings);
     const range = Math.max(1, maxValue - minValue);
@@ -692,13 +695,13 @@ analysis.riskLevel === "high"
       }
 
       const isCurrent = index === points.length - 1;
-      const labelY = point.y < 42 ? point.y + 22 : point.y - 12;
+      const labelY = point.y < 36 ? point.y + 18 : point.y - 9;
 
       svgDots += `
         <circle
           cx="${point.x.toFixed(1)}"
           cy="${point.y.toFixed(1)}"
-          r="${isCurrent ? 8 : 6}"
+          r="${isCurrent ? 7 : 5.5}"
           fill="${isCurrent ? "#2563eb" : "#ffffff"}"
           stroke="#0f172a"
           stroke-width="2"
@@ -710,7 +713,7 @@ analysis.riskLevel === "high"
           x="${point.x.toFixed(1)}"
           y="${labelY.toFixed(1)}"
           text-anchor="middle"
-          font-size="12"
+          font-size="11"
           font-weight="700"
           fill="#0f172a"
         >${point.value.toLocaleString()}</text>
@@ -719,7 +722,7 @@ analysis.riskLevel === "high"
 
     const odometerChartHtml = `
       <svg class="odometer-chart" viewBox="0 0 ${graphWidth} ${graphHeight}" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="${graphWidth}" height="${graphHeight}" rx="18" fill="#ffffff"/>
+        <rect x="0" y="0" width="${graphWidth}" height="${graphHeight}" rx="14" fill="#ffffff"/>
         <line x1="${padX}" y1="${graphHeight - padBottom}" x2="${graphWidth - padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
         <line x1="${padX}" y1="${padTop}" x2="${padX}" y2="${graphHeight - padBottom}" stroke="#cbd5e1" stroke-width="2"/>
         ${svgSegments}
@@ -728,16 +731,21 @@ analysis.riskLevel === "high"
       </svg>
     `;
 
+    const shownDrops = analysis.drops.slice(0, 4);
+
     const dropDetailsHtml =
       analysis.dropCount === 0
       ? `<div class="safe-note">لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.</div>`
-      : analysis.drops.map((drop, index) => `
+      : shownDrops.map((drop, index) => `
           <div class="drop-row">
             <strong>اشتباه ${index + 1}</strong>
             <span>من ${drop.from.toLocaleString()} كم إلى ${drop.to.toLocaleString()} كم</span>
             <b>الانخفاض: ${drop.amount.toLocaleString()} كم</b>
           </div>
-        `).join("");
+        `).join("") +
+        (analysis.dropCount > shownDrops.length
+          ? `<div class="drop-row"><strong>تنبيه</strong><span>يوجد انخفاضات إضافية غير معروضة لتقليل حجم التقرير</span><b>${analysis.dropCount - shownDrops.length}</b></div>`
+          : "");
 
     const timelineSummary =
       analysis.dropCount > 0
@@ -745,6 +753,11 @@ analysis.riskLevel === "high"
       : "لم يتم رصد انخفاض غير طبيعي في تسلسل قراءات العداد.";
 
     const w = window.open("", "_blank");
+
+    if(!w){
+      alert("يرجى السماح بفتح النوافذ المنبثقة حتى يتم إنشاء التقرير.");
+      return;
+    }
 
     w.document.write(`
 <!DOCTYPE html>
@@ -756,7 +769,7 @@ analysis.riskLevel === "high"
 <style>
 @page{
   size:A4;
-  margin:7mm;
+  margin:5mm;
 }
 
 *{
@@ -776,125 +789,126 @@ body{
 
 .header{
   text-align:center;
-  border-bottom:4px solid #0f766e;
-  padding-bottom:10px;
-  margin-bottom:10px;
+  border-bottom:3px solid #0f766e;
+  padding-bottom:6px;
+  margin-bottom:7px;
 }
 
 .logo{
-  width:82px;
-  margin-bottom:2px;
+  width:66px;
+  margin-bottom:0;
 }
 
 h1{
   color:#0f766e;
-  margin:3px 0;
-  font-size:24px;
+  margin:1px 0;
+  font-size:21px;
 }
 
 .subtitle{
   color:#475569;
-  font-size:12px;
+  font-size:10px;
 }
 
 .box{
   border:1px solid #cbd5e1;
-  border-radius:14px;
-  padding:9px;
-  margin:7px 0;
+  border-radius:12px;
+  padding:7px;
+  margin:5px 0;
   background:#f8fafc;
+  page-break-inside:avoid;
 }
 
 .box h2{
-  margin:0 0 7px;
+  margin:0 0 5px;
   color:#0f766e;
-  font-size:16px;
+  font-size:14px;
 }
 
 .en{
   display:block;
-  font-size:11px;
+  font-size:10px;
   color:#64748b;
   font-weight:400;
-  margin-top:2px;
+  margin-top:1px;
 }
 
 .grid{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
-  gap:8px;
+  gap:6px;
 }
 
 .item{
   background:white;
   border:1px solid #e2e8f0;
-  border-radius:11px;
-  padding:9px;
+  border-radius:9px;
+  padding:7px;
 }
 
 .label{
   color:#64748b;
-  font-size:11px;
-  margin-bottom:3px;
+  font-size:10px;
+  margin-bottom:2px;
 }
 
 .value{
-  font-size:15px;
+  font-size:14px;
   font-weight:bold;
 }
 
 .status{
   background:${statusColor} !important;
   color:white !important;
-  padding:13px;
-  border-radius:13px;
+  padding:10px;
+  border-radius:11px;
   text-align:center;
-  font-size:20px;
+  font-size:17px;
   font-weight:bold;
-  margin-bottom:9px;
+  margin-bottom:6px;
 }
 
 .summary{
   display:grid;
   grid-template-columns:repeat(4, 1fr);
-  gap:8px;
+  gap:6px;
 }
 
 .summary-card{
   background:#ffffff;
   border:1px solid #e2e8f0;
-  border-radius:12px;
-  padding:9px;
+  border-radius:10px;
+  padding:7px;
   text-align:center;
 }
 
 .summary-value{
-  font-size:20px;
+  font-size:16px;
   font-weight:800;
   color:#0f172a;
-  line-height:1.2;
+  line-height:1.15;
 }
 
 .summary-label{
-  font-size:11px;
+  font-size:10px;
   color:#475569;
-  margin-top:3px;
+  margin-top:2px;
 }
 
 .odometer-chart{
   width:100%;
-  height:190px;
+  height:145px;
   display:block;
-  margin-top:5px;
+  margin-top:3px;
 }
 
 .legend{
   display:flex;
-  gap:12px;
+  gap:10px;
   justify-content:center;
-  font-size:12px;
+  font-size:10px;
   color:#475569;
-  margin-top:3px;
+  margin-top:2px;
 }
 
 .legend span{
@@ -904,8 +918,8 @@ h1{
 }
 
 .up-dot,.down-dot,.current-dot{
-  width:12px;
-  height:12px;
+  width:10px;
+  height:10px;
   border-radius:99px;
   display:inline-block;
 }
@@ -916,30 +930,37 @@ h1{
 
 .drop-row{
   background:#fee2e2;
-  border-right:5px solid #b91c1c;
+  border-right:4px solid #b91c1c;
   color:#7f1d1d;
-  padding:8px 10px;
-  border-radius:10px;
-  margin-bottom:6px;
+  padding:6px 8px;
+  border-radius:9px;
+  margin-bottom:4px;
   display:flex;
   justify-content:space-between;
-  gap:8px;
-  font-size:12px;
+  gap:6px;
+  font-size:10px;
 }
 
 .safe-note{
   background:#dcfce7;
   color:#166534;
-  padding:10px;
-  border-radius:10px;
+  padding:8px;
+  border-radius:9px;
   font-weight:bold;
+  font-size:11px;
 }
 
 .note{
   color:#475569;
-  font-size:11px;
-  line-height:1.6;
-  margin:6px 0 0;
+  font-size:10px;
+  line-height:1.4;
+  margin:4px 0 0;
+}
+
+.recommendation-text{
+  margin:0;
+  font-size:12px;
+  line-height:1.5;
 }
 </style>
 </head>
@@ -1024,11 +1045,11 @@ h1{
 
 <div class="box">
   <h2>التوصية <span class="en">Recommendation</span></h2>
-  <p>${recommendation}</p>
+  <p class="recommendation-text">${recommendation}</p>
 </div>
 
 <p class="note">
-ملاحظة: هذا التقرير يعتمد على البيانات المتوفرة داخل النظام، ولا يغني عن الفحص الفني للمركبة أو التحقق من السجلات الرسمية قبل الشراء.
+ملاحظة: يعتمد التقرير على البيانات المتوفرة داخل النظام ولا يغني عن الفحص الفني والتحقق من السجلات الرسمية.
 </p>
 
 </body>
