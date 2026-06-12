@@ -940,9 +940,8 @@ const uniqueCars = Object.values(cars.reduce((acc, car) => {
 }, {}));
 
 uniqueCars.forEach(car => {      html += `
-        <div class="info-card">
-        
-          >
+       
+         <div class="info-card">
           <p>🚗 ${car.make || ""} ${car.model || ""}</p>
           <p>📅 ${car.year || "غير محدد"}</p>
           <p>📍 ${car.vin || "غير محدد"}</p>
