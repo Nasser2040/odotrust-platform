@@ -887,13 +887,47 @@ h1{ color:#0f766e; margin:0; font-size:25px; }
     }
   }
 
-  async function editCar(id){
-    const newMileage = prompt("أدخل العداد الجديد");
-    if(!newMileage) return;
+ async function editCar(id){
+  const newMileage = prompt("أدخل العداد الجديد");
+  if(!newMileage) return;
 
-    await client.from("vehicles").update({ mileage:Number(newMileage) }).eq("id", id);
+  const mileageValue = Number(newMileage);
+
+  if(!mileageValue || mileageValue <= 0){
+    alert("أدخل رقم عداد صحيح");
+    return;
+  }
+
+  const { data: carData, error: fetchError } = await client
+    .from("vehicles")
+    .select("vin")
+    .eq("id", id)
+    .single();
+
+  if(fetchError || !carData){
+    alert("لم يتم العثور على المركبة");
+    return;
+  }
+
+  const { error } = await client
+    .from("vehicles")
+    .update({ mileage: mileageValue })
+    .eq("id", id);
+
+  await client.from("mileage_history").insert([{
+    vin: carData.vin,
+    mileage: mileageValue,
+    inspection_date: new Date().toISOString().slice(0,10),
+    source: "manual_update"
+  }]);
+
+  if(error){
+    alert("فشل تعديل العداد");
+  }else{
+    alert("تم تعديل العداد وحفظ القراءة الجديدة ✅");
     checkUser();
   }
+}
 
   async function deleteCar(id){
     const ok = confirm("هل تريد حذف المركبة؟");
