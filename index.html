@@ -481,16 +481,13 @@ margin-top:14px;
   }
 async function logout(){
   try{
-    await client.auth.signOut();
-
     localStorage.clear();
     sessionStorage.clear();
 
-    document.cookie.split(";").forEach(cookie => {
-      document.cookie = cookie
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    });
+    await client.auth.signOut().catch(() => {});
+
+    localStorage.clear();
+    sessionStorage.clear();
 
     document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
     document.getElementById("authMessage").style.color = "#4ade80";
@@ -498,13 +495,15 @@ async function logout(){
     document.getElementById("savedCars").innerHTML = "لا توجد مركبات";
 
     setTimeout(() => {
-      window.location.replace(window.location.origin + window.location.pathname + "?logout=1");
+      window.location.href = "/?logout=1&t=" + Date.now();
     }, 500);
 
   }catch(error){
-    alert("حدث خطأ أثناء تسجيل الخروج: " + error.message);
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/?logout=1&t=" + Date.now();
   }
-
+}
   async function saveVehicle(){
     const vin = cleanVin(document.getElementById("vin").value);
     const make = document.getElementById("make").value.trim();
