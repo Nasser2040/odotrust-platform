@@ -480,24 +480,31 @@ margin-top:14px;
     }
   }
 async function logout(){
-  sessionStorage.setItem("odotrust_logout", "true");
+  try{
+    await client.auth.signOut();
 
-  await client.auth.signOut({ scope: "global" });
+    localStorage.clear();
+    sessionStorage.clear();
 
-  Object.keys(localStorage).forEach(key => {
-    if(key.includes("supabase") || key.includes("sb-")){
-      localStorage.removeItem(key);
-    }
-  });
+    document.cookie.split(";").forEach(cookie => {
+      document.cookie = cookie
+        .replace(/^ +/, "")
+        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
 
-  document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
-  document.getElementById("userStatus").innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
-  document.getElementById("savedCars").innerHTML = "لا توجد مركبات";
+    document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
+    document.getElementById("authMessage").style.color = "#4ade80";
+    document.getElementById("userStatus").innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
+    document.getElementById("savedCars").innerHTML = "لا توجد مركبات";
 
-  setTimeout(() => {
-    window.location.href = window.location.pathname + "?logout=1";
-  }, 500);
-}
+    setTimeout(() => {
+      window.location.replace(window.location.origin + window.location.pathname + "?logout=1");
+    }, 500);
+
+  }catch(error){
+    alert("حدث خطأ أثناء تسجيل الخروج: " + error.message);
+  }
+
   async function saveVehicle(){
     const vin = cleanVin(document.getElementById("vin").value);
     const make = document.getElementById("make").value.trim();
