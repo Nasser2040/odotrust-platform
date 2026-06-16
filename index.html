@@ -479,11 +479,20 @@ margin-top:14px;
       checkUser();
     }
   }
+async function logout(){
+  await client.auth.signOut({ scope: "global" });
 
-  async function logout(){
-    await client.auth.signOut();
-    document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
-    checkUser();
+  localStorage.clear();
+  sessionStorage.clear();
+
+  document.getElementById("authMessage").innerText = "تم تسجيل الخروج 👋";
+  document.getElementById("userStatus").innerHTML = "❌ لا يوجد مستخدم مسجل دخول";
+  document.getElementById("savedCars").innerHTML = "لا توجد مركبات";
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
+
   }
 
   async function saveVehicle(){
